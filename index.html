@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Radar Simulator - GROK RADAR</title>
+  <style>
+    :root {
+      --bg-dark: #1a1a1d;
+      --panel-dark: #2c2c34;
+      --border-color: #444;
+      --text-light: #e0e0e0;
+      --text-medium: #a0a0a0;
+      --accent-blue: #4a90e2;
+      --accent-green: #50e3c2;
+      --accent-orange: #f5a623;
+      --accent-red: #d0021b;
+    }
+    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; display: flex; flex-direction: column; align-items: center; background: var(--bg-dark); color: var(--text-light); margin:0; padding:20px; box-sizing: border-box; }
+    #top { display:flex; gap:20px; width:100%; max-width:1300px; }
+    #radarContainer { flex:1; display:flex; flex-direction:column; align-items:center; }
+    #radarCanvas { border: 1px solid var(--border-color); background: #000; width:800px; height:800px; border-radius: 8px; }
+    #sidePanel { width:400px; background: var(--panel-dark); padding:20px; border-radius:8px; border:1px solid var(--border-color); height: fit-content; max-height: 90vh; overflow-y: auto; }
+    #controlPanel { margin-top:20px; display:flex; flex-wrap:wrap; gap:10px; align-items: center; }
+    #cmdLine { display:flex; gap:10px; margin-top:20px; width: 100%; }
+    #cmdInput { flex:1; }
+    .dataBlock { background: var(--bg-dark); color: var(--text-light); padding:15px; margin:10px 0; font-family: 'Fira Code', 'Consolas', monospace; font-size:14px; border-radius:6px; border: 1px solid var(--border-color); }
+    #logPanel { height:200px; overflow:auto; background: var(--bg-dark); color: var(--text-medium); padding:10px; border-radius:6px; font-size: 12px; border: 1px solid var(--border-color); }
+    #aircraftList { max-height: 250px; overflow-y: auto; }
+    #aircraftList > div { padding: 8px; border-radius: 4px; cursor: pointer; transition: background-color 0.2s; }
+    #aircraftList > div:hover { background-color: #3a3a42; }
+    h3 { color: var(--accent-blue); border-bottom: 1px solid var(--border-color); padding-bottom: 8px; margin-top: 20px; margin-bottom: 10px; }
+    #sidePanel > h3:first-child { margin-top: 0; }
+    button, input, select, label { font-size: 14px; color: var(--text-light); }
+    button { background: #3d3d45; border: 1px solid var(--border-color); padding: 8px 15px; border-radius: 5px; cursor: pointer; transition: background-color 0.2s, border-color 0.2s; }
+    button:hover { background-color: #4a4a52; border-color: #666; }
+    #cmdSend { background-color: var(--accent-blue); border-color: var(--accent-blue); }
+    #cmdSend:hover { background-color: #5a9ee2; }
+    input[type="number"], input[type="text"] { background: var(--bg-dark); border: 1px solid var(--border-color); padding: 8px; border-radius: 5px; color: var(--text-light); }
+    label { display: block; margin-bottom: 10px; }
+    input[type="checkbox"] { accent-color: var(--accent-blue); }
+    .collapsible-header { cursor: pointer; position: relative; user-select: none; }
+    .collapsible-header::after { content: '▶'; font-size: 0.8em; position: absolute; right: 5px; top: 12px; transition: transform 0.2s ease-in-out; }
+    .collapsible-header.active::after { transform: rotate(90deg); }
+    .collapsible-content { max-height: 0; overflow: hidden; transition: max-height 0.3s ease-out; background-color: var(--bg-dark); padding: 0 15px; border-radius: 6px; }
+    .collapsible-content .control-group { margin: 15px 0; }
+    .collapsible-content .control-group h4 { margin-top: 0; margin-bottom: 10px; color: var(--accent-green); }
+    .collapsible-content .control-group button { margin-right: 5px; margin-bottom: 5px; }
+    .help-command { font-family: 'Fira Code', 'Consolas', monospace; color: var(--accent-orange); }
+    .help-desc { margin-left: 1em; color: var(--text-medium); font-size: 0.9em; }
+    .gui-command-row { margin-bottom: 15px; }
+    .gui-command-row label { font-size: 0.9em; color: var(--text-medium); margin-bottom: 5px; }
+    .input-group { display: flex; }
+    .input-group input { flex-grow: 1; border-right: none; border-top-right-radius: 0; border-bottom-right-radius: 0; }
+    .input-group button { border-top-left-radius: 0; border-bottom-left-radius: 0; }
+  </style>
+</head>
+<body>
+  <div id="top">
+    <div id="radarContainer">
+      <canvas id="radarCanvas" width="800" height="800"></canvas>
+    </div>
+
+    <div id="sidePanel">
+      <h3>Selected Target</h3>
+      <div id="dataPanel" class="dataBlock">No selection</div>
+
+      <div id="guiCommandPanel" style="display: none;">
+          <h4 style="color: var(--accent-green); margin-top: 20px;">Issue Command</h4>
+          <div class="gui-command-row">
+              <label for="guiCmdHeading">Heading (0-359)</label>
+              <div class="input-group">
+                  <input type="number" id="guiCmdHeading" placeholder="e.g., 270">
+                  <button id="guiSendHeading">Set</button>
+              </div>
+          </div>
+          <div class="gui-command-row">
+              <label for="guiCmdAltitude">Altitude (ft)</label>
+              <div class="input-group">
+                  <input type="number" id="guiCmdAltitude" placeholder="e.g., 9000" step="1000">
+                  <button id="guiSendAltitude">Set</button>
+              </div>
+          </div>
+          <div class="gui-command-row">
+              <label for="guiCmdSpeed">Speed (kts)</label>
+              <div class="input-group">
+                  <input type="number" id="guiCmdSpeed" placeholder="e.g., 250">
+                  <button id="guiSendSpeed">Set</button>
+              </div>
+          </div>
+          <div class="gui-command-row">
+              <button id="guiSendHold" style="width: 100%;">Engage Hold</button>
+          </div>
+      </div>
+
+      <h3 class="collapsible-header active">Controls</h3>
+      <div class="collapsible-content" style="max-height: 500px;">
+        <div class="control-group">
+          <h4>Simulation</h4>
+          <button id="startPauseBtn">Start</button>
+        </div>
+        <div class="control-group">
+          <h4>Aircraft</h4>
+          <button id="addAircraftBtn">Add Aircraft</button>
+          <button id="addVGHSAircraftBtn">Add Hypersonic</button>
+          <button id="removeAircraftBtn">Remove Sel.</button>
+        </div>
+        <div class="control-group">
+          <h4>Display & Radar</h4>
+          <label>Range (km): <input id="radarRangeInput" type="number" value="100" min="50" max="500"></label>
+          <label><input id="toggleID" type="checkbox" checked> Show ID</label>
+          <label><input id="toggleSpeed" type="checkbox" checked> Show Speed</label>
+          <label><input id="toggleAltitude" type="checkbox" checked> Show Altitude</label>
+          <label><input id="toggleHeading" type="checkbox" checked> Show Heading</label>
+          <label><input id="toggleTrails" type="checkbox" checked> Show Trails</label>
+        </div>
+      </div>
+
+      <h3 class="collapsible-header">Command Help</h3>
+      <div class="collapsible-content">
+        <div class="control-group">
+          <p class="help-desc">Commands are in the format: <br><span class="help-command">&lt;Callsign&gt; &lt;Verb&gt; &lt;Param&gt;</span></p>
+          <p><span class="help-command">C &lt;heading&gt;</span><br><span class="help-desc">Clearance to a 3-digit heading. Ex: <span class="help-command">C 090</span></span></p>
+          <p><span class="help-command">C &lt;altitude&gt;</span><br><span class="help-desc">Clearance to an altitude (x1000 ft). Ex: <span class="help-command">C 12</span> (for 12,000 ft)</span></p>
+          <p><span class="help-command">S &lt;speed&gt;</span><br><span class="help-desc">Set speed in knots. Ex: <span class="help-command">S 250</span></span></p>
+          <p><span class="help-command">H</span><br><span class="help-desc">Hold current position.</span></p>
+          <hr style="border-color: var(--border-color); margin: 15px 0;">
+          <p class="help-desc">Commands can be chained:</p>
+          <p><span class="help-command">AC101 C 270 C 8 S 210</span></p>
+        </div>
+      </div>
+
+      <h3>Command Line</h3>
+      <div id="cmdLine">
+        <input id="cmdInput" placeholder="e.g. AC101 C 090 C 15 S 300" />
+        <button id="cmdSend">Send</button>
+      </div>
+
+      <h3>Metrics</h3>
+      <div id="metricsPanel" class="dataBlock">
+        <div>Near-misses: <span id="metricNearMiss">0</span></div>
+        <div>Conflicts resolved: <span id="metricResolved">0</span></div>
+        <div>Commands issued: <span id="metricCommands">0</span></div>
+      </div>
+
+      <h3>Log</h3>
+      <div id="logPanel"></div>
+
+      <h3>Aircraft List</h3>
+      <div id="aircraftList"></div>
+    </div>
+  </div>
+
+  <script type="module" src="./modules/simulation.js"></script>
+</body>
+</html>
