@@ -1,0 +1,20 @@
+/* --- Idea View Specifics --- */
+.idea-container {
+    max-width: 1200px;
+    margin: 20px auto;
+    background: var(--panel-dark);
+    padding: 30px 40px;
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+}
+.idea-container h2 {
+    color: var(--accent-blue);
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 10px;
+}
+.idea-container p { color: var(--text-medium); }
+.idea-hero-image { width: 100%; border-radius: 8px; margin-top: 20px; border: 1px solid var(--border-color); }
+.idea-text-content { margin-top: 30px; }
+.idea-text-content h3 { color: var(--accent-green); }
+.idea-text-content ul { list-style-type: '» '; padding-left: 20px; }
+.idea-text-content li { margin-bottom: 10px; color: var(--text-medium); }

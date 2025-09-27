@@ -4,16 +4,18 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>BAF RADAR SIMULATOR</title>
-  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/main.css">
+  <link rel="stylesheet" href="css/simulator.css">
+  <link rel="stylesheet" href="css/idea.css">
+  <link rel="stylesheet" href="css/resource.css">
 </head>
 <body>
   <header id="main-header">
     <h1>BAF RADAR SIMULATOR</h1>
     <nav>
       <a href="#simulator" class="nav-link active" data-view="simulator-view">Simulator</a>
-      <a href="#planning" class="nav-link" data-view="planning-view">Project Planning</a>
-      <a href="#inspiration" class="nav-link" data-view="inspiration-view">Inspiration</a>
-      <a href="#asset" class="nav-link" data-view="asset-view">Asset</a>
+      <a href="#idea" class="nav-link" data-view="idea-view">Idea</a>
+      <a href="#resource" class="nav-link" data-view="resource-view">Resources</a>
     </nav>
   </header>
 
@@ -104,12 +106,23 @@
       </div>
     </div>
 
-    <div id="planning-view" class="view"></div>
+    <div id="idea-view" class="view"></div>
+    <div id="resource-view" class="view"></div>
   </main>
 
-    <div id="asset-view" class="view"></div>
+  <!-- Modal Structure -->
+  <div id="resource-modal" class="modal-container">
+    <div class="modal-content">
+      <span class="modal-close">&times;</span>
+      <img id="modal-img" src="" alt="Modal Image">
+      <div class="modal-header">
+        <h2 id="modal-title"></h2>
+        <a id="modal-external-link" href="#" target="_blank" class="modal-button">Open Source</a>
+      </div>
+      <p id="modal-description"></p>
+    </div>
+  </div>
 
-    <div id="inspiration-view" class="view"></div>
 
   <script type="module" src="js/main.js"></script>
   <script>
@@ -123,15 +136,67 @@
         // Only fetch content if the view is empty
         if (viewElement && viewElement.innerHTML.trim() === '') {
           try {
-            const response = await fetch(`view/${viewId}.html`);
-            if (!response.ok) throw new Error(`Could not load ${viewId}.html`);
-            const content = await response.text();
-            viewElement.innerHTML = content;
+            if (viewId === 'resource-view') {
+              await loadResourceView(viewElement);
+            } else {
+              const response = await fetch(`view/${viewId}.html`);
+              if (!response.ok) throw new Error(`Could not load ${viewId}.html`);
+              const content = await response.text();
+              viewElement.innerHTML = content;
+            }
           } catch (error) {
             console.error('Failed to load view:', error);
             viewElement.innerHTML = `<p style="color: red;">Error loading content.</p>`;
           }
         }
+      };
+
+      const loadResourceView = async (viewElement) => {
+        const response = await fetch('data/resource.md');
+        if (!response.ok) throw new Error('Could not load data/resource.md');
+        const mdContent = await response.text();
+
+        const resources = mdContent.split(/\r?\n---\r?\n/).map(block => {
+          if (block.trim() === '') return null;
+          const imageMatch = block.match(/!\[.*?\]\((.*?)\)/);
+          const titleMatch = block.match(/### (.*?)\s*?\n/);
+          const urlMatch = block.match(/#### (.*?)\s*?\n/);
+          const shortMatch = block.match(/###### (.*?)\s*?\n/);
+          // The long description is the text that follows the last metadata header (######).
+          const longMatch = block.match(/###### .*?\s*?\n\n*([\s\S]+)/);
+          return {
+            image: imageMatch ? imageMatch[1] : '',
+            title: titleMatch ? titleMatch[1] : 'No Title',
+            url: urlMatch ? urlMatch[1].trim() : '#',
+            short: shortMatch ? shortMatch[1].trim() : '',
+            long: longMatch ? longMatch[1].trim() : ''
+          };
+        }).filter(Boolean);
+
+        const gridHtml = resources.map(res => `
+          <div class="resource-item" 
+               data-modal-image="${res.image}"
+               data-modal-title="${res.title}"
+               data-external-url="${res.url}"
+               data-modal-description="${res.long.replace(/"/g, '&quot;')}">
+            <div class="resource-image-container">
+              <img src="${res.image}" alt="${res.title}">
+            </div>
+            <div class="resource-content">
+              <h3>${res.title}</h3>
+              <p>${res.short}</p>
+            </div>
+          </div>
+        `).join('');
+
+        viewElement.innerHTML = `
+          <div class="resource-container">
+            <h2>Resources & Inspiration</h2>
+            <p>A collection of assets, concepts, and technologies that inspire and inform this project. Click on any card for more details.</p>
+            <div class="resource-grid">${gridHtml}</div>
+          </div>
+        `;
+        setupModalListeners();
       };
 
       navLinks.forEach(link => {
@@ -157,14 +222,36 @@
           loadView(activeViewId);
         }
       }
-    });
-  </script>
-</body>
-</html>
-          document.getElementById(targetViewId).classList.add('active');
-          link.classList.add('active');
-          window.history.pushState({}, '', link.href);
+
+      // --- Modal Logic ---
+      const modal = document.getElementById('resource-modal');
+      const modalClose = document.querySelector('.modal-close');
+
+      function setupModalListeners() {
+        document.querySelectorAll('.resource-item').forEach(item => {
+          item.addEventListener('click', () => {
+            // Populate modal
+            document.getElementById('modal-img').src = item.dataset.modalImage;
+            document.getElementById('modal-title').textContent = item.dataset.modalTitle;
+            document.getElementById('modal-description').textContent = item.dataset.modalDescription;
+            document.getElementById('modal-external-link').href = item.dataset.externalUrl;
+            
+            // Show modal
+            modal.style.display = 'flex';
+          });
         });
+      }
+
+      function closeModal() {
+        modal.style.display = 'none';
+      }
+
+      modalClose.addEventListener('click', closeModal);
+
+      window.addEventListener('click', (event) => {
+        if (event.target === modal) {
+          closeModal();
+        }
       });
 
     });
