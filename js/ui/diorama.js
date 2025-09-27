@@ -2,7 +2,7 @@
  * Module: diorama.js
  *
  * This module defines the Diorama class, which encapsulates all the logic
- * for the interactive diorama demonstration on the "Airport Diorama" page.
+ * for the interactive 2D diorama demonstration on the "Airport Diorama" page.
  * It handles canvas rendering, user input from the slider and radio buttons,
  * and the animation logic for landing and take-off scenarios.
  */
@@ -48,7 +48,8 @@ export class Diorama {
             return;
         }
         this.canvas.width = this.canvas.offsetWidth;
-        this.canvas.height = this.canvas.offsetWidth * 0.25; // Use an even wider aspect ratio (4:1)
+        // The height is now determined by the CSS aspect-ratio property
+        this.canvas.height = this.canvas.offsetHeight;
         this.draw();
     }
 
@@ -96,15 +97,15 @@ export class Diorama {
 
         // Mid-ground (receding ground)
         const midGroundGradient = this.ctx.createLinearGradient(0, horizonY, 0, runwayTopY);
-        midGroundGradient.addColorStop(0, '#2c3e50'); // Match the hazy blue at the horizon
-        midGroundGradient.addColorStop(1, '#4a443a'); // Fade to a mid-tone brown
+        midGroundGradient.addColorStop(0, '#2c3e50'); // Match the hazy blue at the horizon for a seamless blend
+        midGroundGradient.addColorStop(1, '#2E4031'); // Fade to a dark, desaturated green
         this.ctx.fillStyle = midGroundGradient;
         this.ctx.fillRect(0, horizonY, width, runwayTopY - horizonY);
 
         // Foreground (where the runway sits)
         const foregroundGradient = this.ctx.createLinearGradient(0, runwayTopY, 0, height);
-        foregroundGradient.addColorStop(0, '#4a443a'); // Match the mid-tone brown
-        foregroundGradient.addColorStop(1, '#3D352A'); // Fade to a dark, earthy brown
+        foregroundGradient.addColorStop(0, '#2E4031'); // Match the dark green from the mid-ground
+        foregroundGradient.addColorStop(1, '#1A2B1D'); // Fade to a very dark, earthy green
         this.ctx.fillStyle = foregroundGradient;
         this.ctx.fillRect(0, runwayTopY, width, height - runwayTopY);
 
@@ -151,7 +152,7 @@ export class Diorama {
         if (this.currentScenario === 'landing') {
             const rwyEnd = width - edgeGap;
             const rwyStart = rwyEnd - runwayLength;
-            drawGuideLine(width * 0.1, '6 ILS DME'); // Add gap from left edge
+            drawGuideLine(width * 0.1, '6 DME (ILS Start)'); // Add gap from left edge
             drawGuideLine(rwyStart, 'Threshold');
             drawGuideLine(rwyStart + 120, 'Touchdown'); // Positioned just after start threshold
             drawGuideLine(rwyEnd - 150, 'Fly End'); // Moved left

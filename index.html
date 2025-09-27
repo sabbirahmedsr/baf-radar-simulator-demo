@@ -124,9 +124,14 @@
   </div>
 
 
-  <script type="module" src="js/main.js"></script>
+  <!-- Three.js Library -->
+  <script async src="https://unpkg.com/es-module-shims@1.6.3/dist/es-module-shims.js"></script>
+  <script type="importmap">{"imports": {"three": "https://unpkg.com/three@0.157.0/build/three.module.js","three/addons/": "https://unpkg.com/three@0.157.0/examples/jsm/"}}</script>
+
   <script type="module">
+    import './js/main.js';
     import { Diorama } from './js/ui/diorama.js';
+    import { init3DScenes } from './js/ui/diorama-3d.js';
 
     // Simple SPA router
     document.addEventListener('DOMContentLoaded', () => {
@@ -149,6 +154,7 @@
               if (viewId === 'diorama-view') {
                 setupDioramaInteractiveDemo();
                 setupConceptGalleryListeners();
+                init3DScenes();
               }
             }
           } catch (error) {

@@ -38,14 +38,27 @@
     </div>
   </div>
 
-  <!-- Section 3: Concept Gallery -->
-  <div class="concept-gallery-section">
-    <h3>Concept Gallery</h3>
-    <p>A collection of concept images and diagrams illustrating the physical design and system architecture of the diorama project.</p>
-    <div class="concept-image-grid">
-      <img src="img/diorama/concept-1.png" alt="Concept 1" class="concept-image-item" data-enlargeable>
-      <img src="img/diorama/concept-2.png" alt="Concept 2" class="concept-image-item" data-enlargeable>
-      <img src="img/diorama/concept-3.png" alt="Concept 3" class="concept-image-item" data-enlargeable>
+  <!-- Section 3: 3D Mechanical Design Previews -->
+  <div class="animation-section">
+    <h3>3D Mechanical Design Previews</h3>
+    <p>Interactive 3D previews of the landing and take-off sequences, created in Blender and controlled via the web.</p>
+    <div class="animation-container" id="diorama-3d-container">
+      <canvas id="diorama-3d-canvas"></canvas>
+      <div class="diorama-3d-controls">
+        <button id="play-3d-btn" class="play-3d-btn primary">Play</button>
+        <button id="reset-3d-btn" class="play-3d-btn primary">Reset</button>
+        <button id="grid-3d-btn" class="play-3d-btn primary">Grid</button>
+        <button id="camera-3d-btn" class="play-3d-btn primary">Camera</button>
+        <button id="maximize-3d-btn" class="play-3d-btn primary">Maximize</button>
+      </div>
+    </div>
+    <div class="demo-controls">
+      <div class="animation-timeline" id="diorama-3d-timeline">
+        <button class="timeline-step" data-state="approach">Landing</button>
+        <button class="timeline-step" data-state="landed">Reset after Landing</button>
+        <button class="timeline-step" data-state="takeoff">Take-off</button>
+        <button class="timeline-step" data-state="airborne">Reset after Take-off</button>
+      </div>
     </div>
   </div>
 
@@ -83,6 +96,17 @@
           </div>
         </a>
       </div>
+    </div>
+  </div>
+
+  <!-- Section 4: Concept Gallery -->
+  <div class="concept-gallery-section">
+    <h3>Concept Gallery</h3>
+    <p>A collection of concept images and diagrams illustrating the physical design and system architecture of the diorama project.</p>
+    <div class="concept-image-grid">
+      <img src="img/diorama/concept-1.png" alt="Concept 1" class="concept-image-item" data-enlargeable>
+      <img src="img/diorama/concept-2.png" alt="Concept 2" class="concept-image-item" data-enlargeable>
+      <img src="img/diorama/concept-3.png" alt="Concept 3" class="concept-image-item" data-enlargeable>
     </div>
   </div>
 </div>
