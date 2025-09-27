@@ -1,0 +1,161 @@
+/* --- Diorama View Specifics --- */
+.diorama-container {
+    max-width: 1200px;
+    margin: 20px auto;
+    background: var(--panel-dark);
+    padding: 30px 40px;
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+}
+.diorama-container h2 {
+    color: var(--accent-blue);
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 10px;
+}
+.diorama-container p {
+    color: var(--text-medium);
+    text-align: justify;
+}
+
+/* --- Carousel Section --- */
+.carousel-container {
+    position: relative;
+    width: 100%;
+    margin-top: 20px;
+    border-radius: 8px;
+    overflow: hidden;
+    border: 1px solid var(--border-color);
+}
+#carousel-image {
+    width: 100%;
+    display: block;
+    aspect-ratio: 16 / 9;
+    object-fit: cover;
+}
+.carousel-btn {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background-color: rgba(0, 0, 0, 0.5);
+    color: white;
+    border: none;
+    font-size: 2rem;
+    padding: 0.5rem 1rem;
+    cursor: pointer;
+    border-radius: 5px;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+.carousel-container:hover .carousel-btn {
+    opacity: 1;
+}
+.carousel-btn.prev { left: 10px; }
+.carousel-btn.next { right: 10px; }
+
+/* --- Plan Details Section --- */
+.plan-details {
+    display: flex;
+    gap: 40px;
+    margin-top: 40px;
+}
+.plan-column {
+    flex: 1;
+}
+.plan-details h3 {
+    color: var(--accent-green);
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 8px;
+}
+.plan-details ul {
+    list-style-type: none;
+    padding-left: 0;
+}
+.plan-details li {
+    background-color: var(--bg-dark);
+    padding: 10px;
+    border-radius: 4px;
+    margin-bottom: 10px;
+    border-left: 3px solid var(--accent-green);
+}
+
+/* --- Inspiration Section --- */
+.inspiration-section {
+    margin-top: 40px;
+    padding-top: 20px;
+    border-top: 1px solid var(--border-color);
+}
+.inspiration-section h3 {
+    color: var(--accent-blue);
+    border-bottom: none;
+}
+.inspiration-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 25px;
+    margin-top: 30px;
+}
+.inspiration-card {
+    display: flex;
+    flex-direction: column;
+}
+.inspiration-card-media {
+    position: relative;
+    height: 180px;
+    border-radius: 8px;
+    overflow: hidden;
+    border: 1px solid var(--border-color);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.inspiration-card-media:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 15px rgba(0,0,0,0.3);
+}
+.inspiration-card-media img { width: 100%; height: 100%; object-fit: cover; }
+.play-button-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; opacity: 0; transition: opacity 0.3s ease; }
+.play-button-overlay::after {
+    content: '';
+    display: block;
+    width: 68px;
+    height: 48px;
+    background-color: #ff0000;
+    border-radius: 10px;
+    transition: background-color 0.2s;
+}
+.play-button-overlay::before {
+    content: '';
+    width: 0;
+    height: 0;
+    border-style: solid;
+    border-width: 12px 0 12px 20px;
+    border-color: transparent transparent transparent #ffffff;
+    /* This transform centers the triangle inside the red box from ::after */
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-40%, -50%);
+}
+.inspiration-card-media a:hover .play-button-overlay { opacity: 1; }
+
+.inspiration-card-text {
+    text-decoration: none;
+}
+.inspiration-card-content {
+    padding: 15px 5px;
+}
+.inspiration-card-content h4 {
+    margin: 0;
+    color: var(--text-light);
+    transition: color 0.2s ease;
+    font-size: 0.95em;
+    font-weight: normal;
+}
+.inspiration-card-text:hover .inspiration-card-content h4 {
+    color: var(--accent-blue);
+}
+.inspiration-description {
+    color: var(--text-medium);
+    font-size: 0.9em;
+    line-height: 1.5;
+    text-align: justify;
+    margin: 8px 0 0 0;
+}

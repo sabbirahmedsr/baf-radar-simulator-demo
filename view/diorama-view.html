@@ -1,0 +1,67 @@
+<div class="diorama-container">
+  <h2>The Airport Diorama</h2>
+  <p>A physical tabletop runway where every landing and take-off of an aircraft in the simulator is mirrored by a real-world model, perfectly synchronized in real-time.</p>
+
+  <!-- Section 1: Image Carousel -->
+  <div id="diorama-carousel" class="carousel-container">
+    <img id="carousel-image" src="img/diorama/concept-1.png" alt="Concept Image">
+    <button id="prev-btn" class="carousel-btn prev">‹</button>
+    <button id="next-btn" class="carousel-btn next">›</button>
+  </div>
+
+  <!-- Section 2: Plan Details -->
+  <div class="plan-details">
+    <div class="plan-column">
+      <h3>The Vision</h3>
+      <ul>
+        <li><strong>Landing Scenario:</strong> As a virtual aircraft approaches the 6 DME mark, a physical model instantly appears on the diorama to mirror the final descent. After touchdown, it clears the runway and disappears, ready for the next arrival.</li>
+        <li><strong>Departure Scenario:</strong> When an aircraft lines up, its physical counterpart moves into position, accelerates for take-off, and vanishes from the diorama as it becomes airborne in the simulation.</li>
+      </ul>
+    </div>
+    <div class="plan-column">
+      <h3>Implementation Plan</h3>
+      <ul>
+        <li><strong>Connect:</strong> Establish a connection between this web software and an Arduino microcontroller via WebSockets or WebUSB.</li>
+        <li><strong>Build:</strong> Construct a physical tabletop runway and small robotic platforms to carry miniature aircraft models.</li>
+        <li><strong>Sync:</strong> Translate simulator data (position, heading) into movement commands for the physical robots.</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- Section 3: Inspirations -->
+  <div class="inspiration-section">
+    <h3>Inspirations</h3>
+    <div class="inspiration-grid">
+      <!-- Inspiration 1: YouTube Video -->
+      <div class="inspiration-card">
+        <div class="inspiration-card-media">
+          <a href="https://www.youtube.com/watch?v=5tJn6MSwhFA" target="_blank" title="Watch on YouTube">
+            <img src="https://i.ytimg.com/vi/5tJn6MSwhFA/hqdefault.jpg" alt="Miniatur Wunderland Knuffingen Airport Video Thumbnail">
+            <div class="play-button-overlay"></div>
+          </a>
+        </div>
+        <a href="https://www.youtube.com/watch?v=5tJn6MSwhFA" target="_blank" class="inspiration-card-text">
+          <div class="inspiration-card-content">
+            <h4>Miniatur Wunderland Knuffingen Airport</h4>
+            <p class="inspiration-description">The ultimate inspiration: a fully automated miniature airport with incredible detail and functionality.</p>
+          </div>
+        </a>
+      </div>
+      <!-- Inspiration 2: YouTube Video -->
+      <div class="inspiration-card">
+        <div class="inspiration-card-media">
+          <a href="https://www.youtube.com/watch?v=vlx1CmNraFA" target="_blank" title="Watch on YouTube">
+            <img src="https://i.ytimg.com/vi/vlx1CmNraFA/hqdefault.jpg" alt="Miniature Planes Take Off & Land Video Thumbnail">
+            <div class="play-button-overlay"></div>
+          </a>
+        </div>
+        <a href="https://www.youtube.com/watch?v=vlx1CmNraFA" target="_blank" class="inspiration-card-text">
+          <div class="inspiration-card-content">
+            <h4>Miniature Planes Take Off & Land</h4>
+            <p class="inspiration-description">Another amazing example of automated model aircraft in action, showcasing realistic movements.</p>
+          </div>
+        </a>
+      </div>
+    </div>
+  </div>
+</div>

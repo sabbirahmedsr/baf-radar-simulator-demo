@@ -6,7 +6,7 @@
   <title>BAF RADAR SIMULATOR</title>
   <link rel="stylesheet" href="css/main.css">
   <link rel="stylesheet" href="css/simulator.css">
-  <link rel="stylesheet" href="css/idea.css">
+  <link rel="stylesheet" href="css/diorama.css">
   <link rel="stylesheet" href="css/resource.css">
 </head>
 <body>
@@ -14,7 +14,7 @@
     <h1>BAF RADAR SIMULATOR</h1>
     <nav>
       <a href="#simulator" class="nav-link active" data-view="simulator-view">Simulator</a>
-      <a href="#idea" class="nav-link" data-view="idea-view">Idea</a>
+      <a href="#diorama" class="nav-link" data-view="diorama-view">Airport Diorama</a>
       <a href="#resource" class="nav-link" data-view="resource-view">Resources</a>
     </nav>
   </header>
@@ -106,7 +106,7 @@
       </div>
     </div>
 
-    <div id="idea-view" class="view"></div>
+    <div id="diorama-view" class="view"></div>
     <div id="resource-view" class="view"></div>
   </main>
 
@@ -143,12 +143,40 @@
               if (!response.ok) throw new Error(`Could not load ${viewId}.html`);
               const content = await response.text();
               viewElement.innerHTML = content;
+
+              if (viewId === 'diorama-view') {
+                setupDioramaCarousel();
+              }
             }
           } catch (error) {
             console.error('Failed to load view:', error);
             viewElement.innerHTML = `<p style="color: red;">Error loading content.</p>`;
           }
         }
+      };
+
+      const setupDioramaCarousel = () => {
+        const carouselImage = document.getElementById('carousel-image');
+        const prevBtn = document.getElementById('prev-btn');
+        const nextBtn = document.getElementById('next-btn');
+        
+        // --- Define your images here ---
+        const images = ['img/diorama/concept-1.png', 'img/diorama/concept-2.png', 'img/diorama/concept-3.png'];
+        let currentIndex = 0;
+
+        const updateImage = () => {
+          carouselImage.src = images[currentIndex];
+        };
+
+        prevBtn.addEventListener('click', () => {
+          currentIndex = (currentIndex - 1 + images.length) % images.length;
+          updateImage();
+        });
+
+        nextBtn.addEventListener('click', () => {
+          currentIndex = (currentIndex + 1) % images.length;
+          updateImage();
+        });
       };
 
       const loadResourceView = async (viewElement) => {
