@@ -1,12 +1,22 @@
 <div class="diorama-container">
   <h2>The Airport Diorama</h2>
-  <p>A physical tabletop runway where every landing and take-off of an aircraft in the simulator is mirrored by a real-world model, perfectly synchronized in real-time.</p>
+  <p>This interactive demo shows how an aircraft's movement can be controlled on a physical diorama. Use the slider to scrub through the landing and take-off sequences.</p>
 
-  <!-- Section 1: Image Carousel -->
-  <div id="diorama-carousel" class="carousel-container">
-    <img id="carousel-image" src="img/diorama/concept-1.png" alt="Concept Image">
-    <button id="prev-btn" class="carousel-btn prev">‹</button>
-    <button id="next-btn" class="carousel-btn next">›</button>
+  <!-- Section 1: Interactive Demo -->
+  <div class="interactive-demo-container">
+    <canvas id="diorama-canvas"></canvas>
+    <div class="demo-controls">
+      <div class="scenario-toggle">
+        <input type="radio" name="scenario" value="landing" id="scenario-landing" checked>
+        <label for="scenario-landing">Landing</label>
+        
+        <input type="radio" name="scenario" value="takeoff" id="scenario-takeoff">
+        <label for="scenario-takeoff">Take-off</label>
+      </div>
+      <div class="slider-container">
+        <input type="range" id="diorama-slider" min="0" max="1000" value="0">
+      </div>
+    </div>
   </div>
 
   <!-- Section 2: Plan Details -->
@@ -25,6 +35,17 @@
         <li><strong>Build:</strong> Construct a physical tabletop runway and small robotic platforms to carry miniature aircraft models.</li>
         <li><strong>Sync:</strong> Translate simulator data (position, heading) into movement commands for the physical robots.</li>
       </ul>
+    </div>
+  </div>
+
+  <!-- Section 3: Concept Gallery -->
+  <div class="concept-gallery-section">
+    <h3>Concept Gallery</h3>
+    <p>A collection of concept images and diagrams illustrating the physical design and system architecture of the diorama project.</p>
+    <div class="concept-image-grid">
+      <img src="img/diorama/concept-1.png" alt="Concept 1" class="concept-image-item" data-enlargeable>
+      <img src="img/diorama/concept-2.png" alt="Concept 2" class="concept-image-item" data-enlargeable>
+      <img src="img/diorama/concept-3.png" alt="Concept 3" class="concept-image-item" data-enlargeable>
     </div>
   </div>
 

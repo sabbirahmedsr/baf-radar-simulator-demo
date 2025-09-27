@@ -125,7 +125,9 @@
 
 
   <script type="module" src="js/main.js"></script>
-  <script>
+  <script type="module">
+    import { Diorama } from './js/ui/diorama.js';
+
     // Simple SPA router
     document.addEventListener('DOMContentLoaded', () => {
       const navLinks = document.querySelectorAll('.nav-link');
@@ -145,7 +147,8 @@
               viewElement.innerHTML = content;
 
               if (viewId === 'diorama-view') {
-                setupDioramaCarousel();
+                setupDioramaInteractiveDemo();
+                setupConceptGalleryListeners();
               }
             }
           } catch (error) {
@@ -155,27 +158,29 @@
         }
       };
 
-      const setupDioramaCarousel = () => {
-        const carouselImage = document.getElementById('carousel-image');
-        const prevBtn = document.getElementById('prev-btn');
-        const nextBtn = document.getElementById('next-btn');
-        
-        // --- Define your images here ---
-        const images = ['img/diorama/concept-1.png', 'img/diorama/concept-2.png', 'img/diorama/concept-3.png'];
-        let currentIndex = 0;
+      const setupDioramaInteractiveDemo = () => {
+        // This function is now just a simple initializer.
+        const canvas = document.getElementById('diorama-canvas');
+        const slider = document.getElementById('diorama-slider');
+        const scenarioRadios = document.querySelectorAll('input[name="scenario"]');
+        new Diorama(canvas, slider, scenarioRadios);
+      };
 
-        const updateImage = () => {
-          carouselImage.src = images[currentIndex];
-        };
-
-        prevBtn.addEventListener('click', () => {
-          currentIndex = (currentIndex - 1 + images.length) % images.length;
-          updateImage();
-        });
-
-        nextBtn.addEventListener('click', () => {
-          currentIndex = (currentIndex + 1) % images.length;
-          updateImage();
+      const setupConceptGalleryListeners = () => {
+        document.querySelectorAll('[data-enlargeable]').forEach(item => {
+          item.addEventListener('click', () => {
+            const modal = document.getElementById('resource-modal');
+            const modalContent = modal.querySelector('.modal-content');
+            
+            // Populate modal for image-only view
+            document.getElementById('modal-img').src = item.src;
+            
+            // Add a class to hide text elements
+            modalContent.classList.add('image-only');
+            
+            // Show modal
+            modal.style.display = 'flex';
+          });
         });
       };
 
@@ -264,6 +269,9 @@
             document.getElementById('modal-description').textContent = item.dataset.modalDescription;
             document.getElementById('modal-external-link').href = item.dataset.externalUrl;
             
+            // Ensure modal is not in image-only mode
+            modal.querySelector('.modal-content').classList.remove('image-only');
+
             // Show modal
             modal.style.display = 'flex';
           });
