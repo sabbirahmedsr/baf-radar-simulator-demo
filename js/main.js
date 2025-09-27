@@ -1,18 +1,18 @@
 /**
- * Module: simulation.js
- * Purpose: Manages the main simulation loop, coordinating updates to aircraft positions, radar detection,
- * and rendering. Handles time deltas for accurate high-speed movements and pause/start states.
- * Interactions: Calls aircraft.js to update positions, radar.js to detect targets, display.js to render,
- * and ui.js for user input handling.
- * @module Simulation
+ * Module: main.js (formerly simulation.js)
+ *
+ * This is the main entry point for the BAF RADAR SIMULATOR.
+ * It orchestrates the entire simulation by initializing all modules,
+ * managing the central game loop (update and render), and handling
+ * the flow of data between different parts of the application.
  */
-
-import { Radar } from './radar.js';
-import { Display } from './display.js';
-import * as Physics from './physics.js';
-import { Aircraft, HypersonicAircraft } from './aircraft.js';
-import * as Command from './command.js';
-import { UI } from './ui.js';
+import { SIM_CONFIG } from './config.js';
+import { Radar } from './core/radar.js';
+import { Display } from './rendering/display.js';
+import * as Physics from './core/physics.js';
+import { Aircraft, HypersonicAircraft } from './core/aircraft.js';
+import * as Command from './ui/command.js';
+import { UI } from './ui/ui.js';
 
 /**
  * Simulation manager - main loop, state, metrics
@@ -22,13 +22,13 @@ class Simulation {
     this.aircraft = [];
     this.lastTime = null;
     this.accumulator = 0;
-    this.step = 1 / 30; // fixed-step 30 Hz for physics
+    this.step = SIM_CONFIG.physicsStep;
     this.metrics = { nearMiss: 0, resolved: 0, commands: 0 };
     this.log = [];
-    this.radarConfig = { rangeKm: 100, fovDeg: 360, sweepRateDps: 30, flickerRate: 0.02 };
+    this.radarConfig = { rangeKm: 100, sweepRateDps: SIM_CONFIG.radarSweepRateDps };
     this.env = { wind: { dirDeg: 0, speedKts: 0 } };
     this.selected = null;
-    this.isRunning = false;
+    this.isRunning = true;
 
     // Instantiate modules
     this.radar = new Radar(0, 0, this.radarConfig.rangeKm, this.radarConfig.sweepRateDps);
@@ -41,28 +41,13 @@ class Simulation {
   init() {
     // add a few starter aircraft
     for (let i=0;i<6;i++) this.addAircraft(i===0?true:false);
+    this.start();
     this.ui.updateMetrics(this.metrics);
   }
 
   start() {
-    if (this.isRunning) return;
-    this.isRunning = true;
     this.lastTime = performance.now();
     requestAnimationFrame(this.frame.bind(this));
-    this.ui.setRunning(true);
-  }
-
-  pause() {
-    this.isRunning = false;
-    this.ui.setRunning(false);
-  }
-
-  toggleRunning() {
-    if (this.isRunning) {
-      this.pause();
-    } else {
-      this.start();
-    }
   }
 
   frame(now) {
@@ -95,13 +80,15 @@ class Simulation {
     this.ui.updateMetrics(this.metrics);
     // radar detection update
     this.radar.updateSweep(dt);
-    this.radar.detectAircraft(this.aircraft, performance.now() / 1000);
   }
 
   render(now) {
-    this.display.render(this.aircraft, this.radar, this.selected, this.ui.getDisplayOptions());
+    // Pass the live state of all aircraft directly to the display, bypassing radar tracking logic.
+    const allAircraftStates = this.aircraft.map(ac => ac.toDisplayData());
+    this.display.render(allAircraftStates, this.radar, this.selected, this.ui.getDisplayOptions());
     this.ui.updateAircraftList(this.aircraft, this.selectByCallsign.bind(this));
     this.ui.updateLog(this.log);
+    this.ui.updateVerticalAltitudeGraph(this.aircraft, this.selected);
     this.ui.updateSelection(this.selected ? this.selected.toDisplayData() : null);
   }
 
@@ -116,7 +103,7 @@ class Simulation {
       posKm: start,
       heading: Math.random()*360,
       speedKts: isHypersonic ? 4000 : (200 + Math.random()*350),
-      altitudeFt: isHypersonic ? 80000 + Math.random()*60000 : 10000 + Math.random()*30000,
+      altitudeFt: 3000 + Math.random() * 6500, // All aircraft now spawn between 3,000 and 9,500 ft
     };
     const ac = isHypersonic ? new HypersonicAircraft(params) : new Aircraft(params);
     this.aircraft.push(ac);
@@ -171,7 +158,3 @@ class Simulation {
 }
 
 const SIM = new Simulation();
-// export default SIM; // This is not needed if UI doesn't import it.
-
-// auto-start paused
-SIM.pause();

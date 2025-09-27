@@ -1,0 +1,74 @@
+/* --- Simulator View Layout --- */
+#simulator-view.active {
+    display: flex;
+    justify-content: center;
+}
+
+#top { display: flex; gap: 20px; width: 100%; max-width: 1300px; }
+#radarContainer { display: flex; flex-direction: column; align-items: center; }
+#radarCanvas { border: 1px solid var(--border-color); background: #000; width: 800px; height: 800px; border-radius: 8px; }
+#altitudeGraphVerticalCanvas {
+    border: 1px solid var(--border-color);
+    background: var(--bg-dark);
+    border-radius: 8px;
+}
+
+/* --- Side Panel --- */
+#sidePanel { width: 400px; background: var(--panel-dark); padding: 20px; border-radius: 8px; border: 1px solid var(--border-color); height: fit-content; max-height: 90vh; overflow-y: auto; }
+#cmdLine { display: flex; gap: 10px; margin-top: 20px; width: 100%; }
+#cmdInput { flex: 1; }
+.dataBlock { background: var(--bg-dark); color: var(--text-light); padding: 15px; margin: 10px 0; font-family: 'Fira Code', 'Consolas', monospace; font-size: 14px; border-radius: 6px; border: 1px solid var(--border-color); }
+#logPanel { height: 200px; overflow: auto; background: var(--bg-dark); color: var(--text-medium); padding: 10px; border-radius: 6px; font-size: 12px; border: 1px solid var(--border-color); }
+#aircraftList { max-height: 250px; overflow-y: auto; }
+#aircraftList > div { padding: 8px; border-radius: 4px; cursor: pointer; transition: background-color 0.2s; }
+#aircraftList > div:hover { background-color: #3a3a42; }
+h3 { color: var(--accent-blue); border-bottom: 1px solid var(--border-color); padding-bottom: 8px; margin-top: 20px; margin-bottom: 10px; }
+#sidePanel > h3:first-child { margin-top: 0; }
+
+/* --- Generic Controls --- */
+button, input, select, label { font-size: 14px; color: var(--text-light); }
+button { background: #3d3d45; border: 1px solid var(--border-color); padding: 8px 15px; border-radius: 5px; cursor: pointer; transition: background-color 0.2s, border-color 0.2s; }
+button:hover { background-color: #4a4a52; border-color: #666; }
+#cmdSend { background-color: var(--accent-blue); border-color: var(--accent-blue); }
+#cmdSend:hover { background-color: #5a9ee2; }
+input[type="number"], input[type="text"] { background: var(--bg-dark); border: 1px solid var(--border-color); padding: 8px; border-radius: 5px; color: var(--text-light); }
+label { display: block; margin-bottom: 10px; }
+input[type="checkbox"] { accent-color: var(--accent-blue); }
+
+/* --- Collapsible Sections --- */
+.collapsible-header { cursor: pointer; position: relative; user-select: none; }
+.collapsible-header::after { content: '▶'; font-size: 0.8em; position: absolute; right: 5px; top: 12px; transition: transform 0.2s ease-in-out; }
+.collapsible-header.active::after { transform: rotate(90deg); }
+.collapsible-content { max-height: 0; overflow: hidden; transition: max-height 0.3s ease-out; background-color: var(--bg-dark); padding: 0 15px; border-radius: 6px; }
+.collapsible-header.active + .collapsible-content {
+    /* The max-height will be set by JS to the content's scrollHeight */
+}
+.collapsible-content .control-group { margin: 15px 0; }
+.collapsible-content .control-group h4 { margin-top: 0; margin-bottom: 10px; color: var(--accent-green); }
+.collapsible-content .control-group button { margin-right: 5px; margin-bottom: 5px; }
+.help-command { font-family: 'Fira Code', 'Consolas', monospace; color: var(--accent-orange); }
+.help-desc { margin-left: 1em; color: var(--text-medium); font-size: 0.9em; }
+.gui-command-row { margin-bottom: 15px; }
+.gui-command-row label { font-size: 0.9em; color: var(--text-medium); margin-bottom: 5px; }
+.input-group { display: flex; }
+.input-group input { flex-grow: 1; border-right: none; border-top-right-radius: 0; border-bottom-right-radius: 0; }
+.input-group button { border-top-left-radius: 0; border-bottom-left-radius: 0; }
+
+/* --- GUI Command Panel --- */
+#guiCommandPanel {
+    display: none; /* Initially hidden, controlled by JS */
+}
+#guiCommandPanel h4 {
+    color: var(--accent-green);
+    margin-top: 20px;
+}
+#guiSendHold {
+    width: 100%;
+}
+
+/* --- Misc --- */
+.collapsible-content hr {
+    border: none;
+    border-top: 1px solid var(--border-color);
+    margin: 15px 0;
+}

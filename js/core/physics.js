@@ -47,7 +47,7 @@ export function computeAltitudeChange(ac, targetAlt, dt, profile){
   if (typeof targetAlt === 'undefined') return ac.altitudeFt;
   const diff = targetAlt - ac.altitudeFt;
   const max = profile.maxClimb || 2000; // fpm
-  const change = Math.sign(diff) * Math.min(Math.abs(diff), max * dt * 60); // dt in seconds, convert to minutes
+  const change = Math.sign(diff) * Math.min(Math.abs(diff), (max / 60) * dt); // dt is in seconds, so convert fpm to fps
   return ac.altitudeFt + change;
 }
 

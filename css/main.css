@@ -1,0 +1,67 @@
+:root {
+    --bg-dark: #1a1a1d;
+    --panel-dark: #2c2c34;
+    --border-color: #444;
+    --text-light: #e0e0e0;
+    --text-medium: #a0a0a0;
+    --accent-blue: #4a90e2;
+    --accent-green: #50e3c2;
+    --accent-orange: #f5a623;
+    --accent-green-rgba-15: rgba(80, 227, 194, 0.15);
+    --accent-red: #d0021b;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: var(--bg-dark);
+    color: var(--text-light);
+    margin: 0;
+}
+
+/* --- Main Layout & Navigation --- */
+#main-header {
+    background-color: var(--panel-dark);
+    padding: 10px 40px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid var(--border-color);
+}
+
+#main-header h1 {
+    margin: 0;
+    font-size: 1.5em;
+    color: var(--accent-blue);
+}
+
+#main-header nav a {
+    color: var(--text-medium);
+    text-decoration: none;
+    padding: 10px 15px;
+    border-radius: 5px;
+    margin-left: 10px;
+    transition: background-color 0.2s, color 0.2s;
+}
+
+#main-header nav a:hover {
+    background-color: #3a3a42;
+    color: var(--text-light);
+}
+
+#main-header nav a.active {
+    background-color: var(--accent-blue);
+    color: var(--text-light);
+}
+
+main {
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+/* --- View Switching --- */
+.view {
+    display: none;
+}
+.view.active {
+    display: block;
+}

@@ -1,12 +1,13 @@
 import * as Physics from './physics.js';
+import { AIRCRAFT_PROFILES, SIM_CONFIG } from '../config.js';
 
 /**
  * Module: aircraft.js
- * Purpose: Manages aircraft creation and movement logic for the radar simulator. Defines a base Aircraft class
- * and a VGHSAircraft subclass for high-speed scenarios. Updates positions, headings, and other properties
- * to simulate realistic flight paths, including random changes for dynamic behavior.
- * Interactions: Used by simulation.js to update aircraft states, provides data to radar.js for detection.
- * @module Aircraft
+ *
+ * This module defines the Aircraft class and its subclasses. It is responsible
+ * for an aircraft's properties (like speed, altitude), its state, and how it
+ * responds to physics updates and commands. This is the "brain" for each
+ * object on the radar screen.
  */
 
 /**
@@ -23,10 +24,12 @@ export class Aircraft {
     this.altitudeFt = opts.altitudeFt || 10000;
     this.vsFpm = 0;
     this.trail = [];
+    this.lastTrailDropPos = { ...this.posKm }; // Position where the last trail dot was dropped
+    this.TRAIL_DOT_DISTANCE_KM = SIM_CONFIG.trailDotDistanceKm;
     this.state = 'cruising';
     this.target = { heading: this.heading, speed: this.speedKts, altitude: this.altitudeFt, waypoint: null };
     // performance profile
-    this.profile = { maxSpeed: 600, accel: 50, decel: 50, maxClimb: 4000, turnRateDegPerSec: 3 };
+    this.profile = AIRCRAFT_PROFILES.generic;
   }
 
   /**
@@ -35,20 +38,25 @@ export class Aircraft {
    * @param {Object} ctx - Context object containing environment data.
    */
   update(dt, ctx){
-    // record trail
-    this.trail.unshift({pos:{...this.posKm}, t:Date.now()});
-    if (this.trail.length>60) this.trail.pop();
-
     // compute heading change
     const h = Physics.computeTurn(this, this.target.heading, dt, this.profile);
     this.heading = h;
     // speed
     this.speedKts = Physics.computeSpeedChange(this, this.target.speed, dt, this.profile);
     // climb
+    const oldAltitude = this.altitudeFt;
     this.altitudeFt = Physics.computeAltitudeChange(this, this.target.altitude, dt, this.profile);
+    this.vsFpm = (this.altitudeFt - oldAltitude) / (dt / 60); // Calculate vertical speed in ft/min
     // integrate position with wind
     const newPos = Physics.integratePosition(this, dt, ctx.env);
     this.posKm = newPos;
+
+    // Update trail based on distance traveled
+    if (Physics.distanceKm(this.posKm, this.lastTrailDropPos) > this.TRAIL_DOT_DISTANCE_KM) {
+      this.trail.unshift({ ...this.posKm }); // Add new dot position
+      this.lastTrailDropPos = { ...this.posKm }; // Update last drop position
+      if (this.trail.length > SIM_CONFIG.maxTrailDots) this.trail.pop();
+    }
   }
 
   /**
@@ -73,22 +81,6 @@ export class Aircraft {
   }
 
   /**
-   * Returns a snapshot of the aircraft's current state.
-   * @returns {Object} A state object with core properties.
-   */
-  getState() {
-    return {
-      id: this.id,
-      x: this.posKm.x,
-      y: this.posKm.y,
-      type: this.type,
-      speed: this.speedKts,
-      altitude: this.altitudeFt,
-      heading: this.heading,
-      history: this.trail,
-    };
-  }
-  /**
    * Prepares aircraft data for display.
    * @returns {Object} - Display data.
    */
@@ -96,7 +88,7 @@ export class Aircraft {
     return {
       id:this.id, callsign:this.callsign, type:this.type,
       posKm:this.posKm, heading:this.heading, speedKts:this.speedKts, altitudeFt:this.altitudeFt,
-      trail:this.trail.slice(0,40)
+      trail: this.trail
     };
   }
 
@@ -121,7 +113,7 @@ export class HypersonicAircraft extends Aircraft {
   constructor(opts){
     super(opts);
     this.type = 'hypersonic';
-    this.profile = { maxSpeed: 15000, accel: 2000, decel: 2000, maxClimb: 15000, turnRateDegPerSec: 0.5 };
+    this.profile = AIRCRAFT_PROFILES.hypersonic;
     // ensure target speed exists
     this.target.speed = this.speedKts;
   }
