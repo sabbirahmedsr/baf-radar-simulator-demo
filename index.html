@@ -123,7 +123,7 @@
         // Only fetch content if the view is empty
         if (viewElement && viewElement.innerHTML.trim() === '') {
           try {
-            const response = await fetch(`views/${viewId}.html`);
+            const response = await fetch(`view/${viewId}.html`);
             if (!response.ok) throw new Error(`Could not load ${viewId}.html`);
             const content = await response.text();
             viewElement.innerHTML = content;
