@@ -29,7 +29,7 @@ class ThreeScene {
         // Use ResizeObserver to reliably initialize when the canvas is visible and has a size.
         this.resizeObserver = new ResizeObserver(entries => {
             if (entries.length > 0 && entries[0].contentRect.width > 0) {
-                console.log(`[${this.canvas.id}] Canvas is visible. Initializing scene.`);
+                // console.log(`[${this.canvas.id}] Canvas is visible. Initializing scene.`);
                 this.loadModel(); // This will now trigger init() and animate() upon success
                 this.resizeObserver.disconnect(); // We only need to do this once for initialization.
             }
@@ -42,7 +42,8 @@ class ThreeScene {
     init() {
         this.clock = new THREE.Clock();
         this.scene = new THREE.Scene();
-        // this.scene.background = new THREE.Color(0x1a2a3a); // Replaced by sky dome
+        this.scene.background = new THREE.Color().setHSL(0.6, 0, 1);
+        this.scene.fog = new THREE.Fog(this.scene.background, 1, 5000);
 
         // --- Camera ---
         const aspect = this.canvas.clientWidth / this.canvas.clientHeight;
@@ -62,33 +63,69 @@ class ThreeScene {
 
         // --- Renderer ---
         this.renderer = new THREE.WebGLRenderer({ canvas: this.canvas, antialias: true });
-        this.renderer.setSize(this.canvas.clientWidth, this.canvas.clientHeight);
+        this.renderer.setSize(this.canvas.clientWidth, this.canvas.clientHeight, false);
         this.renderer.setPixelRatio(window.devicePixelRatio);
+        this.renderer.shadowMap.enabled = true;
+        this.renderer.shadowMap.type = THREE.BasicShadowMap; // Use hard shadows
 
         // --- Lighting ---
-        const ambientLight = new THREE.AmbientLight(0xffffff, 0.8); // Increased intensity for brighter ambient light
-        this.scene.add(ambientLight);
-        const pointLight = new THREE.PointLight(0xffffff, 0.5);
-        pointLight.position.set(2, 3, 4);
-        this.scene.add(pointLight);
+        const hemiLight = new THREE.HemisphereLight(0xffffff, 0xffffff, 2);
+        hemiLight.color.setHSL(0.6, 1, 0.6);
+        hemiLight.groundColor.setHSL(0.095, 1, 0.75);
+        hemiLight.position.set(0, 50, 0);
+        this.scene.add(hemiLight);
+
+        const dirLight = new THREE.DirectionalLight(0xffffff, 3);
+        dirLight.color.setHSL(0.1, 1, 0.95);
+        dirLight.position.set(-1, 1.75, 1);
+        dirLight.position.multiplyScalar(30);
+        this.scene.add(dirLight);
+
+        dirLight.castShadow = true;
+        dirLight.shadow.mapSize.width = 2048;
+        dirLight.shadow.mapSize.height = 2048;
+        const d = 50;
+        dirLight.shadow.camera.left = -d;
+        dirLight.shadow.camera.right = d;
+        dirLight.shadow.camera.top = d;
+        dirLight.shadow.camera.bottom = -d;
+        dirLight.shadow.camera.far = 3500;
+        dirLight.shadow.bias = -0.0001;
 
         // --- Sky Dome and Ground ---
-        this.createSkyDome();
+        this.createSkyAndGround(hemiLight);
 
         // --- Helpers for Debugging ---
-        const gridColor = new THREE.Color(0x82a354); // A darker green to blend with the ground
+        // Helpers for the new lights
+        // const hemiLightHelper = new THREE.HemisphereLightHelper(hemiLight, 10);
+        // this.scene.add(hemiLightHelper);
+        // const dirLightHelper = new THREE.DirectionalLightHelper(dirLight, 10);
+        // this.scene.add(dirLightHelper);
+        
+        // Create a grid color that blends with the ground by using the same hue and saturation, but a different lightness.
+        const gridColor = new THREE.Color().setHSL(0.095, 1, 0.65); // Same H/S as ground, but darker
+
         this.gridHelper = new THREE.GridHelper(50, 50, gridColor, gridColor);
         this.scene.add(this.gridHelper);
+        this.gridHelper.visible = false; // Hide grid by default
 
         // Add OrbitControls to allow camera manipulation
         this.controls = new OrbitControls(this.camera, this.renderer.domElement);
-        // Blender-style navigation
+        // Set CAD-style navigation: Left-click rotates, Middle-click pans
         this.controls.mouseButtons = {
-            LEFT: THREE.MOUSE.ROTATE,   // Left-click to rotate (can be changed)
-            MIDDLE: THREE.MOUSE.ROTATE, // Middle-click to rotate
-            RIGHT: THREE.MOUSE.PAN      // Right-click to pan
+            LEFT: THREE.MOUSE.ROTATE,
+            MIDDLE: THREE.MOUSE.PAN,
+            RIGHT: THREE.MOUSE.ROTATE // Right-click also rotates
         };
+        this.controls.zoomSpeed = 2.0; // Increase zoom speed
         this.controls.target.set(0, 0.5, 0);
+
+        // Prevent default browser action (scrolling) on middle mouse button down
+        this.renderer.domElement.addEventListener('mousedown', (event) => {
+            if (event.button === 1) { // Middle mouse button
+                event.preventDefault();
+            }
+        });
 
         // --- Resize Listener ---
         window.addEventListener('resize', () => this.onResize());
@@ -106,17 +143,21 @@ class ThreeScene {
             }
         });
 
-        // Set initial camera button text
-        if (this.cameraButton) {
-            this.cameraButton.textContent = this.camera.isPerspectiveCamera ? 'Orthographic' : 'Perspective';
-        }
+        // Listen for fullscreen changes to correctly resize the canvas
+        document.addEventListener('fullscreenchange', () => {
+            const container = this.canvas.closest('.animation-container');
+            if (!container) return;
 
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape' && this.canvas.closest('.animation-container').classList.contains('fullscreen')) {
-                this.toggleFullscreen();
-            }
+            // Check if we are actually in fullscreen mode
+            const isFullscreen = document.fullscreenElement === container;
+            container.classList.toggle('fullscreen', isFullscreen);
+            
+            // Use requestAnimationFrame to ensure the browser has applied CSS changes
+            // before we query the new canvas dimensions. This prevents a race condition.
+            requestAnimationFrame(() => {
+                this.onResize();
+            });
         });
-
         // Listen for browser back button to exit fullscreen
         window.addEventListener('popstate', (event) => {
             if (this.canvas.closest('.animation-container').classList.contains('fullscreen')) {
@@ -126,27 +167,37 @@ class ThreeScene {
         this.controls.saveState(); // Save the initial camera state
     }
 
-    createSkyDome() {
-        const horizonColor = new THREE.Color(0x98BF64); // Light olive green for the ground
-        const skyColor = new THREE.Color(0x87CEEB);     // Bright sky blue
+    createSkyAndGround(hemiLight) {
+        // GROUND
+        const groundGeo = new THREE.PlaneGeometry(10000, 10000);
+        const groundMat = new THREE.MeshLambertMaterial({ color: 0xffffff });
+        groundMat.color.setHSL(0.095, 1, 0.75);
+        const ground = new THREE.Mesh(groundGeo, groundMat);
+        ground.position.y = -0.7; // Lowered the ground slightly
+        ground.rotation.x = -Math.PI / 2;
+        ground.receiveShadow = true;
+        this.scene.add(ground);
 
-        // --- Sky Dome ---
-        const skyGeo = new THREE.SphereGeometry(50, 32, 15); // A large sphere
+        // SKYDOME
+        const uniforms = {
+            'topColor': { value: new THREE.Color(0x0077ff) },
+            'bottomColor': { value: new THREE.Color(0xffffff) },
+            'offset': { value: 0.7 }, // Match the ground's y-position
+            'exponent': { value: 0.6 }
+        };
+        uniforms['topColor'].value.copy(hemiLight.color);
+        this.scene.fog.color.copy(uniforms['bottomColor'].value);
+
+        const skyGeo = new THREE.SphereGeometry(4000, 32, 15);
         const skyMat = new THREE.ShaderMaterial({
-            uniforms: {
-                topColor: { value: skyColor },
-                bottomColor: { value: horizonColor },
-                offset: { value: 0 }, // How much of the bottom is the horizon color
-                exponent: { value: 0.8 } // Controls the gradient steepness
-            },
+            uniforms: uniforms,
             vertexShader: `
                 varying vec3 vWorldPosition;
                 void main() {
                     vec4 worldPosition = modelMatrix * vec4( position, 1.0 );
                     vWorldPosition = worldPosition.xyz;
                     gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );
-                }
-            `,
+                }`,
             fragmentShader: `
                 uniform vec3 topColor;
                 uniform vec3 bottomColor;
@@ -154,14 +205,9 @@ class ThreeScene {
                 uniform float exponent;
                 varying vec3 vWorldPosition;
                 void main() {
-                    float h = normalize(vWorldPosition).y;
-                    if (h < 0.0) {
-                        gl_FragColor = vec4(bottomColor, 1.0); // Solid color for the ground
-                    } else {
-                        gl_FragColor = vec4(mix(bottomColor, topColor, pow(h, exponent)), 1.0);
-                    }
-                }
-            `,
+                    float h = normalize( vWorldPosition + offset ).y;
+                    gl_FragColor = vec4( mix( bottomColor, topColor, max( pow( max( h , 0.0), exponent ), 0.0 ) ), 1.0 );
+                }`,
             side: THREE.BackSide // Render on the inside of the sphere
         });
         const sky = new THREE.Mesh(skyGeo, skyMat);
@@ -171,7 +217,7 @@ class ThreeScene {
     loadModel() {
         const loader = new GLTFLoader();
         loader.load(this.modelPath, (gltf) => {
-            console.log(`[${this.canvas.id}] Model loaded successfully from ${this.modelPath}`);
+            // console.log(`[${this.canvas.id}] Model loaded successfully from ${this.modelPath}`);
             this.model = gltf.scene;
 
             // Initialize scene now that we have a model to work with
@@ -179,8 +225,14 @@ class ThreeScene {
 
             // --- Automatic Scaling and Centering ---
             // The model is now added at its original size and position (0,0,0)
-            // as defined in the .glb file.
             this.scene.add(this.model);
+
+            // Enable shadows for the model
+            this.model.traverse(function (child) {
+                if (child.isMesh) {
+                    child.castShadow = true;
+                }
+            });
 
             // Start the animation loop only after everything is loaded and initialized
 
@@ -191,7 +243,7 @@ class ThreeScene {
                 const action = this.mixer.clipAction(clip);
                 action.setLoop(THREE.LoopRepeat);
                 this.animations.set(clip.name, action);
-                console.log(`[${this.canvas.id}] Found animation: ${clip.name}`);
+                // console.log(`[${this.canvas.id}] Found animation: ${clip.name}`);
             });
 
             if (this.animations.size > 0) {
@@ -207,7 +259,7 @@ class ThreeScene {
         (xhr) => {
             // Called while loading is progressing
             if (xhr.lengthComputable) {
-                console.log(`[${this.canvas.id}] ${this.modelPath}: ${(xhr.loaded / xhr.total * 100).toFixed(2)}% loaded`);
+                // console.log(`[${this.canvas.id}] ${this.modelPath}: ${(xhr.loaded / xhr.total * 100).toFixed(2)}% loaded`);
             }
         },
         (error) => console.error(`Error loading model from ${this.modelPath}:`, error));
@@ -232,7 +284,10 @@ class ThreeScene {
         }
 
         this.camera.updateProjectionMatrix();
-        this.renderer.setSize(width, height);
+        // The third parameter `false` prevents setSize from updating the canvas's CSS style,
+        // which is crucial for allowing our CSS rules (like for fullscreen) to take precedence.
+        // It ensures the renderer's resolution matches the element's display size.
+        this.renderer.setSize(width, height, false);
     }
 
     animate() {
@@ -257,10 +312,13 @@ class ThreeScene {
         const isPlaying = Array.from(this.animations.values()).some(action => action.isRunning());
 
         if (isPlaying) {
-            this.animations.forEach(action => action.stop());
+            this.animations.forEach(action => action.paused = true);
             this.playButton.textContent = 'Play';
         } else {
-            this.animations.forEach(action => action.play());
+            this.animations.forEach(action => {
+                action.paused = false; // Explicitly un-pause
+                action.play();
+            });
             this.playButton.textContent = 'Pause';
         }
     }
@@ -272,14 +330,18 @@ class ThreeScene {
         if (this.camera !== this.perspectiveCamera) {
             this.camera = this.perspectiveCamera;
             this.controls.object = this.camera;
-            this.cameraButton.textContent = 'Orthographic';
+            this.cameraButton?.classList.remove('ortho-active');
         }
 
         // Reset camera position and zoom to its saved initial state
         this.controls.reset();
 
         // Reset all animations to the beginning and update the button text.
-        this.animations.forEach(action => action.reset());
+        this.animations.forEach(action => {
+            action.stop(); // Ensure the animation is stopped
+            action.time = 0; // Reset its time to the beginning
+            action.paused = true; // Explicitly pause it
+        });
         this.playButton.textContent = 'Play';
     }
 
@@ -296,9 +358,9 @@ class ThreeScene {
 
         if (currentTime >= 0 && currentTime < 100 / FPS) {
             activeState = 'approach';
-        } else if (currentTime >= 100 / FPS && currentTime < 180 / FPS) {
+        } else if (currentTime >= 100 / FPS && currentTime < 280 / FPS) {
             activeState = 'landed';
-        } else if (currentTime >= 180 / FPS && currentTime < 260 / FPS) {
+        } else if (currentTime >= 280 / FPS && currentTime < 390 / FPS) {
             activeState = 'takeoff';
         } else {
             activeState = 'airborne';
@@ -357,13 +419,16 @@ class ThreeScene {
     toggleGrid() {
         if (!this.gridHelper) return;
         this.gridHelper.visible = !this.gridHelper.visible;
+        this.gridButton?.classList.toggle('active', this.gridHelper.visible);
     }
 
     toggleCameraProjection() {
         if (!this.camera || !this.controls) return;
 
+        let isOrtho = false;
         if (this.camera.isPerspectiveCamera) {
             this.camera = this.orthographicCamera;
+            isOrtho = true;
         } else {
             this.camera = this.perspectiveCamera;
         }
@@ -372,39 +437,26 @@ class ThreeScene {
         this.controls.object = this.camera;
         this.onResize(); // Apply correct aspect ratio/frustum
 
-        // Update button text to reflect the *next* state
-        if (this.cameraButton) {
-            this.cameraButton.textContent = this.camera.isPerspectiveCamera ? 'Orthographic' : 'Perspective';
-        }
+        // Toggle a class on the button to show the correct icon
+        this.cameraButton?.classList.toggle('ortho-active', isOrtho);
     }
 
-    toggleFullscreen(isPoppingState = false) {
+    toggleFullscreen() {
         const container = this.canvas.closest('.animation-container');
         if (!container) {
             console.error('Could not find animation container for fullscreen toggle.');
             return;
         }
-        const willBeFullscreen = !container.classList.contains('fullscreen');
-        container.classList.toggle('fullscreen', willBeFullscreen);
 
-        // Toggle button text
-        if (this.maximizeButton) {
-            this.maximizeButton.textContent = willBeFullscreen ? 'Minimize' : 'Maximize';
+        if (!document.fullscreenElement) {
+            // Enter fullscreen
+            container.requestFullscreen().catch(err => {
+                alert(`Error attempting to enable full-screen mode: ${err.message} (${err.name})`);
+            });
+        } else {
+            // Exit fullscreen
+            document.exitFullscreen();
         }
-
-        // Manipulate browser history unless we are already handling a popstate event
-        if (!isPoppingState) {
-            if (willBeFullscreen) {
-                // Push a state so the back button can be used to minimize
-                history.pushState({ dioramaFullscreen: this.canvas.id }, 'Fullscreen');
-            } else {
-                // If the user clicked the minimize button, go back in history to clear our pushed state
-                history.back();
-            }
-        }
-
-        // We need to wait a moment for the CSS transition to apply before resizing the canvas
-        setTimeout(() => this.onResize(), 50);
     }
 }
 

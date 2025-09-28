@@ -282,6 +282,7 @@
     justify-content: space-between;
     align-items: center;
     padding: 8px 5%; /* Give some space at the ends */
+    z-index: 5; /* Ensure it's above other elements but below fullscreen */
 }
 .animation-timeline::before {
     content: '';
@@ -303,7 +304,7 @@
     cursor: pointer;
     transition: background-color 0.2s, color 0.2s;
     position: relative; /* To sit on top of the ::before line */
-    z-index: 1;
+    z-index: 6; /* Higher than the line and other controls */
 }
 .timeline-step:hover {
     background-color: #4a4a52;
@@ -322,11 +323,9 @@
     left: 50%;
     transform: translateX(-50%);
     display: flex;
-    gap: 10px;
-    background: rgba(44, 44, 52, 0.8);
-    padding: 8px;
+    gap: 10px;    
+    background: rgba(44, 44, 52, 0.8); /* Use a solid background instead of backdrop-filter */    padding: 8px;
     border-radius: 6px;
-    backdrop-filter: blur(4px); /* Adds a nice frosted glass effect */
 }
 .diorama-3d-controls button {
     background-color: var(--panel-dark);
@@ -342,6 +341,53 @@
     color: var(--text-light);
 }
 
+/* --- View Controls (Bottom Right) --- */
+.diorama-3d-view-controls {
+    position: absolute;
+    bottom: 15px;
+    right: 15px;
+    display: flex;
+    gap: 8px;
+    z-index: 10;
+}
+.view-control-btn {
+    width: 40px;
+    height: 40px;
+    padding: 0; /* Remove padding to allow flexbox to center content */
+    background-color: rgba(44, 44, 52, 0.8);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    color: var(--text-light);
+    cursor: pointer;
+    backdrop-filter: blur(4px);
+    /* Add flex properties for centering */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.view-control-btn:hover {
+    background-color: var(--accent-blue);
+}
+.view-control-btn.active {
+    background-color: var(--accent-blue);
+    border-color: var(--accent-blue);
+}
+.view-control-btn svg,
+.view-control-btn i {
+    /* Remove fixed dimensions and use font-size for scaling */
+    font-size: 1.4em; /* Increase icon size */
+    color: var(--text-light);
+}
+
+/* Icon visibility toggles */
+.view-control-btn .minimize-icon,
+.view-control-btn .orthographic-icon { display: none; }
+
+.animation-container.fullscreen .view-control-btn .minimize-icon { display: block; }
+.animation-container.fullscreen .view-control-btn .maximize-icon { display: none; }
+.view-control-btn.ortho-active .orthographic-icon { display: block; }
+.view-control-btn.ortho-active .perspective-icon { display: none; }
+
 /* Fullscreen mode */
 .animation-container.fullscreen {
     position: fixed;
@@ -352,6 +398,7 @@
     z-index: 2000;
     border-radius: 0;
     border: none;
+    background-color: var(--bg-dark); /* Add a background to hide content behind */
     padding: 0;
 }
 .animation-container.fullscreen canvas {
@@ -359,4 +406,33 @@
     aspect-ratio: auto; /* Override aspect ratio in fullscreen */
     width: 100%;
     height: 100%;
+}
+
+/* --- Navigation Help --- */
+.navigation-help {
+    position: absolute;
+    bottom: 15px;
+    left: 15px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    background: rgba(44, 44, 52, 0.8);
+    padding: 10px;
+    border-radius: 6px;
+    font-size: 0.8em;
+    color: var(--text-medium);
+    z-index: 10;
+    pointer-events: none; /* Make it non-interactive */
+}
+.help-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.help-item i {
+    width: 16px; /* Give icon a fixed width for alignment */
+    text-align: center;
+}
+.help-item strong {
+    color: var(--text-light);
 }

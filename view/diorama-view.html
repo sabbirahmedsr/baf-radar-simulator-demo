@@ -44,12 +44,33 @@
     <p>Interactive 3D previews of the landing and take-off sequences, created in Blender and controlled via the web.</p>
     <div class="animation-container" id="diorama-3d-container">
       <canvas id="diorama-3d-canvas"></canvas>
+      <div class="navigation-help">
+        <div class="help-item">
+          <i class="fa-solid fa-arrows-rotate"></i><span><strong>LMB:</strong> Rotate</span>
+        </div>
+        <div class="help-item">
+          <i class="fa-solid fa-hand"></i><span><strong>MMB:</strong> Pan</span>
+        </div>
+        <div class="help-item">
+          <i class="fa-solid fa-magnifying-glass"></i><span><strong>Scroll:</strong> Zoom</span>
+        </div>
+      </div>
       <div class="diorama-3d-controls">
         <button id="play-3d-btn" class="play-3d-btn primary">Play</button>
         <button id="reset-3d-btn" class="play-3d-btn primary">Reset</button>
-        <button id="grid-3d-btn" class="play-3d-btn primary">Grid</button>
-        <button id="camera-3d-btn" class="play-3d-btn primary">Camera</button>
-        <button id="maximize-3d-btn" class="play-3d-btn primary">Maximize</button>
+      </div>
+      <div class="diorama-3d-view-controls">
+        <button id="grid-3d-btn" class="view-control-btn" title="Toggle Grid">
+          <i class="fa-solid fa-table-cells"></i>
+        </button>
+        <button id="camera-3d-btn" class="view-control-btn" title="Toggle Camera Projection">
+          <i class="perspective-icon fa-solid fa-camera"></i>
+          <i class="orthographic-icon fa-solid fa-cube"></i>
+        </button>
+        <button id="maximize-3d-btn" class="view-control-btn" title="Toggle Fullscreen">
+          <i class="maximize-icon fa-solid fa-expand"></i>
+          <i class="minimize-icon fa-solid fa-compress"></i>
+        </button>
       </div>
       <div class="animation-timeline" id="diorama-3d-timeline">
         <button class="timeline-step" data-state="approach">Landing</button>
@@ -60,7 +81,7 @@
     </div>
   </div>
 
-  <!-- Section 3: Inspirations -->
+  <!-- Section 4: Inspirations -->
   <div class="inspiration-section">
     <h3>Inspirations</h3>
     <div class="inspiration-grid">
@@ -97,7 +118,7 @@
     </div>
   </div>
 
-  <!-- Section 4: Concept Gallery -->
+  <!-- Section 5: Concept Gallery -->
   <div class="concept-gallery-section">
     <h3>Concept Gallery</h3>
     <p>A collection of concept images and diagrams illustrating the physical design and system architecture of the diorama project.</p>
