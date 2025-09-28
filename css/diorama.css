@@ -261,7 +261,7 @@
     overflow: hidden; /* To contain the canvas */
     width: 100%;
     margin-top: 20px;
-    aspect-ratio: 3 / 1;
+    aspect-ratio: 2.5 / 1;
 }
 .animation-container canvas {
     width: 100%;
@@ -274,12 +274,14 @@
 
 /* --- Animation Timeline Control --- */
 .animation-timeline {
+    position: absolute;
+    top: 15px;
+    left: 0;
+    right: 0;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    width: 100%;
-    position: relative;
-    padding: 0 5%; /* Give some space at the ends */
+    padding: 8px 5%; /* Give some space at the ends */
 }
 .animation-timeline::before {
     content: '';
@@ -300,7 +302,7 @@
     border-radius: 15px;
     cursor: pointer;
     transition: background-color 0.2s, color 0.2s;
-    position: relative;
+    position: relative; /* To sit on top of the ::before line */
     z-index: 1;
 }
 .timeline-step:hover {
@@ -308,10 +310,10 @@
     border-color: #666;
 }
 .timeline-step.active {
-    background-color: var(--accent-blue);
+    /* A more subtle highlight style than the main action buttons */
+    background-color: var(--panel-dark); /* Keep the background dark */
     color: var(--text-light);
     border-color: var(--accent-blue);
-    font-weight: bold;
 }
 
 .diorama-3d-controls {
@@ -330,7 +332,7 @@
     background-color: var(--panel-dark);
     border-color: var(--border-color);
     flex: 1; /* Make all buttons expand to equal width */
-    min-width: 90px;
+    min-width: 110px; /* Increased width to fit "Orthographic" text */
 }
 
 /* Primary style for the main action button */

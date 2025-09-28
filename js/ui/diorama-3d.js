@@ -37,7 +37,6 @@ class ThreeScene {
         this.resizeObserver.observe(this.canvas);
 
         this.animations = new Map(); // To store all animation clips
-        this.activeAction = null; // The currently playing animation
     }
 
     init() {
@@ -47,8 +46,19 @@ class ThreeScene {
 
         // --- Camera ---
         const aspect = this.canvas.clientWidth / this.canvas.clientHeight;
-        this.camera = new THREE.PerspectiveCamera(75, aspect, 0.1, 1000);
-        this.camera.position.set(0, 2, 4); // Positioned to look at the origin from the front and above
+        // Create both cameras at initialization to preserve their settings
+        this.perspectiveCamera = new THREE.PerspectiveCamera(30, aspect, 0.1, 1000);
+        this.perspectiveCamera.position.set(0, 3, 7); // Moved camera closer and lower
+
+        const frustumSize = 5;
+        this.orthographicCamera = new THREE.OrthographicCamera(
+            frustumSize * aspect / -2, frustumSize * aspect / 2,
+            frustumSize / 2, frustumSize / -2,
+            0.1, 1000
+        );
+        this.orthographicCamera.position.set(0, 3, 7); // Match the new default position
+
+        this.camera = this.perspectiveCamera; // Start with the perspective camera
 
         // --- Renderer ---
         this.renderer = new THREE.WebGLRenderer({ canvas: this.canvas, antialias: true });
@@ -184,24 +194,22 @@ class ThreeScene {
                 console.log(`[${this.canvas.id}] Found animation: ${clip.name}`);
             });
 
-            // Set the default animation
             if (this.animations.size > 0) {
-                const firstAnimationName = this.animations.keys().next().value;
-                this.activeAction = this.animations.get(firstAnimationName);
                 this.goToState('approach'); // Start at the 'approach' state
+                this.toggleAnimation(); // Play the animation by default
             } else {
                 console.warn(`[${this.canvas.id}] No animations found in the model.`);
             }
 
             // Start the animation loop
             this.animate();
-        }, 
+        },
         (xhr) => {
             // Called while loading is progressing
             if (xhr.lengthComputable) {
                 console.log(`[${this.canvas.id}] ${this.modelPath}: ${(xhr.loaded / xhr.total * 100).toFixed(2)}% loaded`);
             }
-        }, 
+        },
         (error) => console.error(`Error loading model from ${this.modelPath}:`, error));
     }
 
@@ -233,6 +241,7 @@ class ThreeScene {
         // Update animation mixer
         if (this.mixer) {
             this.mixer.update(this.clock.getDelta());
+            this.updateTimelineUI();
         }
 
         // Required if controls.enableDamping or .autoRotate are set
@@ -242,29 +251,73 @@ class ThreeScene {
     }
 
     toggleAnimation() {
-        if (!this.activeAction) return;
+        if (this.animations.size === 0) return;
 
-        if (this.activeAction.isRunning()) {
-            this.activeAction.stop();
+        // Check if any animation is currently running.
+        const isPlaying = Array.from(this.animations.values()).some(action => action.isRunning());
+
+        if (isPlaying) {
+            this.animations.forEach(action => action.stop());
             this.playButton.textContent = 'Play';
         } else {
-            this.activeAction.play();
+            this.animations.forEach(action => action.play());
             this.playButton.textContent = 'Pause';
         }
     }
 
     resetView() {
         if (!this.controls) return;
-        // Reset camera position
+
+        // Ensure we are back on the default perspective camera
+        if (this.camera !== this.perspectiveCamera) {
+            this.camera = this.perspectiveCamera;
+            this.controls.object = this.camera;
+            this.cameraButton.textContent = 'Orthographic';
+        }
+
+        // Reset camera position and zoom to its saved initial state
         this.controls.reset();
 
-        // Reset the animation to the beginning and update the button text.
-        this.activeAction?.reset();
+        // Reset all animations to the beginning and update the button text.
+        this.animations.forEach(action => action.reset());
         this.playButton.textContent = 'Play';
     }
 
+    updateTimelineUI() {
+        if (this.animations.size === 0 || !this.timelineContainer) return;
+
+        // Get the first animation action to read the time from.
+        // This assumes all animations are synced and have the same duration.
+        const firstAction = this.animations.values().next().value;
+
+        const FPS = 24;
+        const currentTime = firstAction.time;
+        let activeState = null;
+
+        if (currentTime >= 0 && currentTime < 100 / FPS) {
+            activeState = 'approach';
+        } else if (currentTime >= 100 / FPS && currentTime < 180 / FPS) {
+            activeState = 'landed';
+        } else if (currentTime >= 180 / FPS && currentTime < 260 / FPS) {
+            activeState = 'takeoff';
+        } else {
+            activeState = 'airborne';
+        }
+
+        // Avoid unnecessary DOM manipulation if the state hasn't changed
+        if (this.timelineContainer.dataset.currentState === activeState) {
+            return;
+        }
+        this.timelineContainer.dataset.currentState = activeState;
+
+        // Update button styles
+        this.timelineContainer.querySelectorAll('.timeline-step').forEach(btn => {
+            btn.classList.toggle('active', btn.dataset.state === activeState);
+        });
+    }
+
     goToState(state) {
-        if (!this.activeAction) return;
+        if (this.animations.size === 0) return;
 
         const FPS = 24; // Standard animation frame rate
         let time;
@@ -277,22 +330,28 @@ class ThreeScene {
                 time = 100 / FPS;
                 break;
             case 'takeoff':
-                time = 180 / FPS;
+                time = 280 / FPS;
                 break;
             case 'airborne':
-                time = 260 / FPS;
+                time = 390 / FPS;
                 break;
             default:
                 return;
         }
 
-        // Set the animation to the correct time
-        this.activeAction.time = time;
+        // Check if any animation is currently running.
+        const isPlaying = Array.from(this.animations.values()).some(action => action.isRunning());
 
-        // Update timeline UI
-        this.timelineContainer.querySelectorAll('.timeline-step').forEach(btn => {
-            btn.classList.toggle('active', btn.dataset.state === state);
+        // Set the time for all animations
+        this.animations.forEach(action => {
+            action.time = time;
         });
+
+        // Also play the animations if they are currently paused.
+        if (!isPlaying) {
+            this.animations.forEach(action => action.play());
+            this.playButton.textContent = 'Pause';
+        }
     }
 
     toggleGrid() {
@@ -303,37 +362,14 @@ class ThreeScene {
     toggleCameraProjection() {
         if (!this.camera || !this.controls) return;
 
-        const oldCamera = this.camera;
-        let newCamera;
-
-        const aspect = this.canvas.clientWidth / this.canvas.clientHeight;
-
-        if (oldCamera.isPerspectiveCamera) {
-            // Switch to Orthographic
-            const frustumSize = 5;
-            newCamera = new THREE.OrthographicCamera(
-                frustumSize * aspect / -2, // left
-                frustumSize * aspect / 2,  // right
-                frustumSize / 2,           // top
-                frustumSize / -2,          // bottom
-                0.1,                       // near
-                1000                       // far
-            );
+        if (this.camera.isPerspectiveCamera) {
+            this.camera = this.orthographicCamera;
         } else {
-            // Switch to Perspective
-            newCamera = new THREE.PerspectiveCamera(75, aspect, 0.1, 1000);
+            this.camera = this.perspectiveCamera;
         }
-
-        // Copy position and rotation from the old camera
-        newCamera.position.copy(oldCamera.position);
-        newCamera.rotation.copy(oldCamera.rotation);
-        newCamera.zoom = oldCamera.zoom;
-
-        this.camera = newCamera;
 
         // Update OrbitControls to use the new camera
         this.controls.object = this.camera;
-        this.controls.update();
         this.onResize(); // Apply correct aspect ratio/frustum
 
         // Update button text to reflect the *next* state
