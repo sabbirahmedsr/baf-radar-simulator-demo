@@ -10,11 +10,20 @@
 #altitudeGraphVerticalCanvas {
     border: 1px solid var(--border-color);
     background: var(--bg-dark);
+    height: 800px; /* Match canvas height */
     border-radius: 8px;
 }
 
 /* --- Side Panel --- */
-#sidePanel { width: 400px; background: var(--panel-dark); padding: 20px; border-radius: 8px; border: 1px solid var(--border-color); height: fit-content; max-height: 90vh; overflow-y: auto; }
+#sidePanel {
+    width: 400px;
+    background: var(--panel-dark);
+    padding: 20px;
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+    height: 800px; /* Match canvas height */
+    overflow-y: auto;
+    box-sizing: border-box; }
 #cmdLine { display: flex; gap: 10px; margin-top: 20px; width: 100%; }
 #cmdInput { flex: 1; }
 .dataBlock { background: var(--bg-dark); color: var(--text-light); padding: 15px; margin: 10px 0; font-family: 'Fira Code', 'Consolas', monospace; font-size: 14px; border-radius: 6px; border: 1px solid var(--border-color); }

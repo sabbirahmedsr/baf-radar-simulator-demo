@@ -25,6 +25,8 @@ export class Display {
     this.cy = canvas.height / 2;
     this.theme = {};
     this._loadThemeColors();
+    this.displayTargets = new Map(); // Stores the state of targets as seen on screen
+    this.lastSweepAngle = 0; // To detect when a sweep cycle completes
   }
 
   /** Reads theme colors from CSS variables to use in canvas drawing. */
@@ -47,16 +49,45 @@ export class Display {
   }
 
   render(aircraftList, radar, selected, displayOptions){
+    // This function now receives the LIVE aircraft list but will render from its own displayTargets map.
     this.clear();
     this.ctx.save();
     this.ctx.translate(this.cx, this.cy);
+
+    // --- Update display targets based on sweep position ---
+    const sweepCycled = radar.sweepAngle < this.lastSweepAngle;
+    if (sweepCycled) {
+      // Reset the update flag for all targets at the start of a new sweep
+      for (const target of this.displayTargets.values()) {
+        target.updatedThisSweep = false;
+      }
+    }
+
+    // Update the map of displayable targets with live data
+    aircraftList.forEach(liveAc => {
+      const bearing = (Math.atan2(-liveAc.posKm.y, liveAc.posKm.x) * 180 / Math.PI + 360) % 360;
+      const angleDiff = (radar.sweepAngle - bearing + 360) % 360;
+
+      let currentTarget = this.displayTargets.get(liveAc.id);
+      if (!currentTarget) {
+        // New aircraft, add it immediately
+        currentTarget = { ...liveAc, updatedThisSweep: true };
+        this.displayTargets.set(liveAc.id, currentTarget);
+      }
+
+      // Update the target if the sweep has passed it and it hasn't been updated this cycle
+      if (angleDiff < 10 && !currentTarget.updatedThisSweep) {
+        this.displayTargets.set(liveAc.id, { ...liveAc, updatedThisSweep: true });
+      }
+    });
+    this.lastSweepAngle = radar.sweepAngle;
 
     this.renderRunways();
     this.renderGrid(radar.range);
     this.renderSweep(radar.sweepAngle, radar.range);
 
-    // aircraftList is now an array of state objects from the radar, not Aircraft instances.
-    for (const data of aircraftList){
+    // Render from the displayTargets map, which only updates on sweep hits
+    for (const data of this.displayTargets.values()){
       if (displayOptions.showTrails) this.renderTrails(data);
       this.renderAircraft(data, selected, displayOptions);
     }
@@ -103,12 +134,12 @@ export class Display {
     this.ctx.rotate(ang);
     const rangePx = this.kmToPx(rangeKm);
     const grad = this.ctx.createLinearGradient(0,0,rangePx,0);
-    grad.addColorStop(0, this.theme.sweep);
+    grad.addColorStop(0, 'rgba(0,255,0,0.25)'); // Increased opacity for visibility
     grad.addColorStop(1, 'rgba(0,255,0,0)');
     this.ctx.fillStyle = grad;
     this.ctx.beginPath();
     this.ctx.moveTo(0,0);
-    this.ctx.arc(0,0, rangePx, -0.25, 0.25); // Wider sweep cone
+    this.ctx.arc(0,0, rangePx, -0.5, 0.5); // Made the sweep cone even wider
     this.ctx.closePath();
     this.ctx.fill();
     this.ctx.restore();
@@ -168,16 +199,64 @@ export class Display {
   }
 
   _renderDataBlock(p, data, isSelected, displayOptions) {
-    const lines = [];
-    if (displayOptions.showID) lines.push(data.callsign);
-    if (displayOptions.showSpeed) lines.push(`${Math.round(data.speedKts)} kts`);
-    if (displayOptions.showAltitude) lines.push(`${Math.round(data.altitudeFt)} ft`);
-    if (lines.length === 0) return;
-    
-    const txt = lines.join(' | ');
+    const line1Parts = [];
+    if (displayOptions.showID) line1Parts.push(data.callsign);
+    if (displayOptions.showHeading) line1Parts.push(`${Math.round(data.heading)}°`);
+
+    const line2Parts = [];
+    if (displayOptions.showAltitude) line2Parts.push(`${Math.round(data.altitudeFt)}ft`);
+    if (displayOptions.showSpeed) line2Parts.push(`${Math.round(data.speedKts)}kts`);
+
+    const line1 = line1Parts.join(' | ');
+    const line2 = line2Parts.join(' | ');
+
+    if (line1 === '' && line2 === '') return;
+
+    const padding = { x: 5, y: 4 };
+    const lineHeight = 12;
+    const lineGap = 2;
+    const blockHeight = (line1 ? lineHeight : 0) + (line2 ? lineHeight : 0) + (line1 && line2 ? lineGap : 0) + (padding.y * 2);
+
+    this.ctx.font = "10px 'Segoe UI'";
+    const line1Width = this.ctx.measureText(line1).width;
+    const line2Width = this.ctx.measureText(line2).width;
+    const blockWidth = Math.max(line1Width, line2Width) + (padding.x * 2);
+
+    const blockX = p.x + 12;
+    const blockY = p.y - blockHeight;
+
+    // Draw background
     this.ctx.fillStyle = 'rgba(0,0,0,0.6)';
-    this.ctx.fillRect(p.x+8, p.y-18, this.ctx.measureText(txt).width+10, 22);
+    this.ctx.fillRect(blockX, blockY, blockWidth, blockHeight);
+
+    // Draw text
     this.ctx.fillStyle = isSelected ? '#ff0' : (data.type === 'hypersonic' ? THEME_COLORS.accentOrange : THEME_COLORS.accentGreen);
-    this.ctx.fillText(txt, p.x+12, p.y-4);
+    const textY1 = blockY + padding.y + lineHeight - 2; // Adjust for text baseline
+    const textY2 = textY1 + (line1 ? lineHeight + lineGap : 0);
+
+    // Draw Line 1 with mixed weights
+    if (line1) {
+        let currentX = blockX + padding.x;
+        // Draw callsign bold
+        if (displayOptions.showID) {
+            this.ctx.font = "bold 10px 'Segoe UI'";
+            this.ctx.fillText(data.callsign, currentX, textY1);
+            currentX += this.ctx.measureText(data.callsign).width;
+        }
+        // Draw heading normal
+        if (displayOptions.showID && displayOptions.showHeading) {
+            const separator = ' | ';
+            this.ctx.font = "10px 'Segoe UI'";
+            this.ctx.fillText(separator + `${Math.round(data.heading)}°`, currentX, textY1);
+        } else if (displayOptions.showHeading) { // Only heading is enabled
+            this.ctx.font = "10px 'Segoe UI'";
+            this.ctx.fillText(`${Math.round(data.heading)}°`, currentX, textY1);
+        }
+    }
+    // Draw Line 2
+    if (line2) {
+        this.ctx.font = "10px 'Segoe UI'";
+        this.ctx.fillText(line2, blockX + padding.x, textY2);
+    }
   }
 }

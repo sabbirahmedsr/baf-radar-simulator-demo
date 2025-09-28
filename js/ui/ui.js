@@ -134,7 +134,10 @@ export class UI {
     const ctx = this.altitudeCtx;
     const canvas = this.altitudeCanvas;
     const { width, height } = canvas;
-    const padding = { top: 20, bottom: 20, left: 50, right: 10 };
+    
+    // Define the three-column layout
+    const leftColumnWidth = 55;
+    const axisColumnWidth = 50;
 
     ctx.clearRect(0, 0, width, height);
     ctx.fillStyle = this.theme.bgDark;
@@ -144,105 +147,176 @@ export class UI {
     const currentMaxAlt = Math.max(10000, ...aircraftList.map(a => a.altitudeFt)); // Use 10k ft as a minimum scale
     const scaleMax = Math.ceil(currentMaxAlt / 1000) * 1000; // Round up to the nearest 1000 ft
 
-    this._drawAltitudeGraphAxis(ctx, height, padding, scaleMax);
+    this._drawAltitudeGraphAxis(ctx, width, height, { top: 20, bottom: 20 }, scaleMax, leftColumnWidth, axisColumnWidth);
 
     if (aircraftList.length === 0) {
       return;
     }
 
     this.altitudeGraphClickableRegions = []; // Clear old regions
-    this._drawAltitudeGraphAircraft(ctx, width, height, padding, scaleMax, aircraftList, selected);
+    this._drawAltitudeGraphAircraft(ctx, width, height, { top: 20, bottom: 20 }, scaleMax, aircraftList, selected, leftColumnWidth, axisColumnWidth);
   }
 
-  _drawAltitudeGraphAxis(ctx, height, padding, scaleMax) {
+  _drawAltitudeGraphAxis(ctx, width, height, padding, scaleMax, leftColumnWidth, axisColumnWidth) {
     ctx.strokeStyle = this.theme.border;
     ctx.fillStyle = this.theme.textMedium;
     ctx.font = "10px 'Segoe UI'";
     ctx.textAlign = 'right';
     
+    const axisX = leftColumnWidth + (axisColumnWidth / 2);
     const numTicks = 10; // Always show 10 tick marks
     for (let i = 0; i <= numTicks; i++) {
         const alt = (scaleMax / numTicks) * i;
         const y = (height - padding.bottom) - (alt / scaleMax) * (height - padding.top - padding.bottom);
         ctx.beginPath();
-        ctx.moveTo(padding.left - 4, y);
-        ctx.lineTo(padding.left, y);
+        ctx.moveTo(axisX - 4, y);
+        ctx.lineTo(axisX + 4, y);
         ctx.stroke();
-        ctx.fillText(Math.round(alt), padding.left - 8, y + 3);
+        ctx.fillText(Math.round(alt), axisX - 8, y + 3);
     }
     ctx.beginPath();
-    ctx.moveTo(padding.left, padding.top);
-    ctx.lineTo(padding.left, height - padding.bottom);
+    ctx.moveTo(axisX, padding.top);
+    ctx.lineTo(axisX, height - padding.bottom);
     ctx.stroke();
   }
 
-  _drawAltitudeGraphAircraft(ctx, width, height, padding, scaleMax, aircraftList, selected) {
-    const sortedAircraft = [...aircraftList].sort((a, b) => b.altitudeFt - a.altitudeFt);
-    let lastLabelBottomY = -Infinity; // Keep track of the last label's position
+  _drawAltitudeGraphAircraft(ctx, width, height, padding, scaleMax, aircraftList, selected, leftColumnWidth, axisColumnWidth) {
+    const leftAircraft = aircraftList.filter(ac => ac.posKm && ac.posKm.x < 0).sort((a, b) => b.altitudeFt - a.altitudeFt);
+    const rightAircraft = aircraftList.filter(ac => ac.posKm && ac.posKm.x >= 0).sort((a, b) => b.altitudeFt - a.altitudeFt);
+    const axisX = leftColumnWidth + (axisColumnWidth / 2);
 
-    sortedAircraft.forEach(ac => {
-      const isSelected = selected && selected.id === ac.id;
-      const displayData = ac.toDisplayData();
+    const createLabelData = (ac, side) => {
       const trueY = (height - padding.bottom) - (ac.altitudeFt / scaleMax) * (height - padding.top - padding.bottom);
+      const isSelected = selected && selected.id === ac.id;
 
-      // Draw indicator line and label
-      const indicatorLineEndX = padding.left + 8;
-      const textStartX = indicatorLineEndX + 8;
+      const labelConfig = {
+        height: 22,
+        padding: 4,
+        minGap: 2,  
+        text: ac.callsign,
+        side: side,
+        columnWidth: leftColumnWidth,
+        indicatorLineEndX: side === 'left' ? axisX - 8 : axisX + 8,
+      };
+      return { ac, trueY, isSelected, config: labelConfig, labelTopY: trueY - labelConfig.height / 2 };
+    };
 
-      // --- Label Collision and Positioning Logic ---
-      const labelHeight = 18;
-      const labelPadding = 4;
-      const minGap = 2;
+    const leftLabels = leftAircraft.map(ac => createLabelData(ac, 'left'));
+    const rightLabels = rightAircraft.map(ac => createLabelData(ac, 'right'));
 
-      const labelText = ac.callsign;
-      
-      // Calculate initial label position (centered on trueY)
-      let labelTopY = trueY - labelHeight / 2;
+    this._resolveLabelCollisions(leftLabels);
+    this._resolveLabelCollisions(rightLabels);
 
-      // Check for collision and adjust if necessary
-      if (labelTopY < lastLabelBottomY + minGap) {
-        labelTopY = lastLabelBottomY + minGap;
+    // Draw all labels after positions have been finalized
+    [...leftLabels, ...rightLabels].forEach(labelData => {
+      const { ac, trueY, isSelected, config, labelTopY } = labelData;
+      const labelWidth = config.columnWidth - (config.padding * 2);
+      const labelX = (config.side === 'left') ? config.padding : config.indicatorLineEndX + 8;
+
+      this._drawAltitudeIndicatorLine(ctx, axisX, trueY, config.indicatorLineEndX, ac, isSelected);
+      this._drawAltitudeLeaderLine(ctx, trueY, labelTopY, config);
+      this._drawAltitudeLabel(ctx, labelTopY, config, ac, isSelected, labelX, labelWidth);
+      this._addClickableRegionForLabel(labelTopY, config, ac, labelX, labelWidth, isSelected);
+    })
+  }
+
+  /**
+   * Iterates through a list of labels sorted by altitude (desc) and resolves overlaps.
+   * This method modifies the `labelTopY` property of the objects in the list.
+   * @param {Array<Object>} labels - A list of label data objects.
+   */
+  _resolveLabelCollisions(labels) {
+    if (labels.length < 2) return;
+
+    // Iterate downwards from the second label
+    for (let i = 1; i < labels.length; i++) {
+      const upperLabel = labels[i - 1];
+      const currentLabel = labels[i];
+
+      const upperBottom = upperLabel.labelTopY + upperLabel.config.height;
+      const requiredGap = currentLabel.config.minGap;
+
+      // If the current label overlaps the one above it, push it down.
+      if (currentLabel.labelTopY < upperBottom + requiredGap) {
+        currentLabel.labelTopY = upperBottom + requiredGap;
       }
-      lastLabelBottomY = labelTopY + labelHeight; // Update for next iteration
+    }
+  }
 
-      // --- Drawing ---
-      // 1. Draw the true altitude indicator line
-      ctx.strokeStyle = isSelected ? '#ff0' : (ac.type === 'hypersonic' ? this.theme.accentOrange : this.theme.accentGreen);
-      ctx.lineWidth = isSelected ? 2 : 1;
-      ctx.beginPath();
-      ctx.moveTo(padding.left, trueY);
-      ctx.lineTo(indicatorLineEndX, trueY);
-      ctx.stroke();
+  // _resolveLabelYPositionDownwards(trueY, config, lastLabelBottomY) {
+  //   let labelTopY = trueY - config.height / 2; // Center on the true altitude
+  //   // Stacking downwards: if the new label overlaps with the one above it, move it down.
+  //   if (labelTopY < lastLabelBottomY + config.minGap) {
+  //     labelTopY = lastLabelBottomY + config.minGap;
+  //   }
+  //   return labelTopY;
+  // }
+  _drawAltitudeIndicatorLine(ctx, startX, y, endX, aircraft, isSelected) {
+    ctx.strokeStyle = isSelected ? '#ff0' : (aircraft.type === 'hypersonic' ? this.theme.accentOrange : this.theme.accentGreen);
+    ctx.lineWidth = isSelected ? 2 : 1;
+    ctx.beginPath();
+    ctx.moveTo(startX, y);
+    ctx.lineTo(endX, y);
+    ctx.stroke();
+  }
 
-      // 2. Draw the label box
-      ctx.strokeStyle = this.theme.leaderLine;
-      const labelWidth = width - textStartX - padding.right;
-      ctx.strokeRect(textStartX, labelTopY, labelWidth, labelHeight);
+  _drawAltitudeLabel(ctx, labelTopY, config, aircraft, isSelected, labelX, labelWidth) {
+    const cornerRadius = 6;
 
-      // 3. Draw the label text
-      ctx.fillStyle = isSelected ? '#ff0' : this.theme.textLight;
-      ctx.font = "11px 'Segoe UI'";
-      ctx.textAlign = 'left';
-      const textX = textStartX + labelPadding;
-      const textY = labelTopY + labelHeight - 5;
-      ctx.fillText(labelText, textX, textY);
+    // 1. Draw the rounded rectangle for the label
+    ctx.fillStyle = this.theme.panelDark;
+    ctx.strokeStyle = isSelected ? '#ff0' : this.theme.border;
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.roundRect(labelX, labelTopY, labelWidth, config.height, cornerRadius);
+    ctx.fill();
+    ctx.stroke();
 
-      // Define a smaller, more precise clickable region just around the text
-      const textMetrics = ctx.measureText(labelText);
-      this.altitudeGraphClickableRegions.push({
-        x: textX, y: labelTopY, // Use the box's top for y-start
-        width: textMetrics.width, height: labelHeight, // Use the box's height
+    // 2. Prepare text content
+    let vsIndicator = '';
+    // Use the aircraft's actual vertical speed property, not a re-calculated one.
+    if (Math.abs(aircraft.vsFpm) > 50) { // Use a reasonable threshold in ft/min
+        vsIndicator = aircraft.vsFpm > 0 ? '▲' : '▼';
+    }
+    const callsignText = `${aircraft.callsign}`;
+    const altText = `${Math.round(aircraft.altitudeFt)}ft ${vsIndicator}`;
+
+    // 3. Draw the text
+    ctx.fillStyle = isSelected ? '#ff0' : this.theme.textLight;
+    ctx.font = "bold 10px 'Segoe UI'";
+    ctx.textAlign = 'left';
+    ctx.textBaseline = 'top';
+    ctx.fillText(callsignText, labelX + 5, labelTopY + 2);
+    
+    ctx.fillStyle = isSelected ? '#ff0' : this.theme.textMedium;
+    ctx.font = "10px 'Segoe UI'";
+    ctx.textAlign = 'right';
+    ctx.fillText(altText, labelX + labelWidth - 5, labelTopY + 10);
+  }
+
+  _drawAltitudeLeaderLine(ctx, trueY, labelTopY, config) {
+    const elbowTurnX = (config.side === 'left') 
+      ? config.columnWidth - config.padding // Align with box edge
+      : config.indicatorLineEndX + 4; // A bit away from the axis
+
+    ctx.strokeStyle = this.theme.leaderLine;
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(config.indicatorLineEndX, trueY);
+    ctx.lineTo(elbowTurnX, trueY); // Horizontal segment from axis
+    ctx.lineTo(elbowTurnX, labelTopY + config.height / 2); // Vertical segment
+    const finalElbowX = (config.side === 'left') ? config.columnWidth - config.padding : config.indicatorLineEndX + 8;
+    ctx.lineTo(finalElbowX, labelTopY + config.height / 2); // Final horizontal segment to box
+    ctx.stroke();
+  }
+
+  _addClickableRegionForLabel(labelTopY, config, ac, labelX, labelWidth, isSelected) {
+      const region = {
+        x: labelX, y: labelTopY,
+        width: labelWidth, height: config.height,
         callsign: ac.callsign
-      });
-
-      // 4. Draw the leader line connecting indicator to label
-      ctx.strokeStyle = this.theme.leaderLine;
-      ctx.lineWidth = 1;
-      ctx.beginPath();
-      ctx.moveTo(indicatorLineEndX, trueY);
-      ctx.lineTo(textStartX, labelTopY + labelHeight / 2);
-      ctx.stroke();
-    });
+      };
+      this.altitudeGraphClickableRegions.push(region);
   }
 
   /** Sets up all event listeners for the UI. */
@@ -324,10 +398,17 @@ export class UI {
       const x = e.clientX - rect.left;
       const y = e.clientY - rect.top;
 
+      // DEBUG: Log click coordinates
+      // console.log(`[HEIGHT GRAPH] Click at: x=${x.toFixed(2)}, y=${y.toFixed(2)}`);
+
       for (let i = this.altitudeGraphClickableRegions.length - 1; i >= 0; i--) {
         const region = this.altitudeGraphClickableRegions[i];
+        // DEBUG: Log region being checked
+        // console.log(`[HEIGHT GRAPH] Checking region for ${region.callsign}:`, region);
         if (x >= region.x && x <= region.x + region.width &&
             y >= region.y && y <= region.y + region.height) {
+          // DEBUG: Log a successful hit
+          // console.log(`[HEIGHT GRAPH] HIT on ${region.callsign}!`);
           this.simulation.selectByCallsign(region.callsign);
           break;
         }

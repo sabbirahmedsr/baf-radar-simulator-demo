@@ -27,20 +27,20 @@ export const AIRCRAFT_PROFILES = {
         accel: 50,
         decel: 50,
         maxClimb: 4000, // fpm
-        turnRateDegPerSec: 3,
+        turnRateDegPerSec: 6,
     },
     hypersonic: {
-        maxSpeed: 15000,
+        maxSpeed: 2000,
         accel: 2000,
         decel: 2000,
         maxClimb: 15000, // fpm
-        turnRateDegPerSec: 0.5,
+        turnRateDegPerSec: 1,
     },
 };
 
 export const SIM_CONFIG = {
     physicsStep: 1 / 30, // 30 Hz
-    radarSweepRateDps: 90,
+    radarSweepRateDps: 150, // 25 RPM (25 * 360 / 60)
     trailDotDistanceKm: 2,
     maxTrailDots: 10,
 };
