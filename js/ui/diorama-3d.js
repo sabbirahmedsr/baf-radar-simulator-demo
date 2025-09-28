@@ -247,6 +247,7 @@ class ThreeScene {
             });
 
             if (this.animations.size > 0) {
+                this._sizeTimelineButtons(); // Set button widths based on animation duration
                 this.goToState('approach'); // Start at the 'approach' state
                 this.toggleAnimation(); // Play the animation by default
             } else {
@@ -263,6 +264,36 @@ class ThreeScene {
             }
         },
         (error) => console.error(`Error loading model from ${this.modelPath}:`, error));
+    }
+
+    _sizeTimelineButtons() {
+        if (this.animations.size === 0 || !this.timelineContainer) return;
+
+        const firstAction = this.animations.values().next().value;
+        const totalDuration = firstAction.getClip().duration;
+        const FPS = 24;
+
+        // Define the start times (in seconds) for each state
+        const stateStartTimes = {
+            approach: 0,
+            landed: 100 / FPS,
+            takeoff: 280 / FPS,
+            airborne: 360 / FPS,
+        };
+
+        // Calculate durations and apply flex-grow
+        const states = ['approach', 'landed', 'takeoff', 'airborne'];
+        for (let i = 0; i < states.length; i++) {
+            const currentState = states[i];
+            const nextState = states[i + 1];
+
+            const startTime = stateStartTimes[currentState];
+            const endTime = nextState ? stateStartTimes[nextState] : totalDuration;
+            const duration = endTime - startTime;
+
+            const button = this.timelineContainer.querySelector(`[data-state="${currentState}"]`);
+            if (button) button.style.flexGrow = duration;
+        }
     }
 
     onResize() {
@@ -352,6 +383,7 @@ class ThreeScene {
         // This assumes all animations are synced and have the same duration.
         const firstAction = this.animations.values().next().value;
 
+        // --- State Update ---
         const FPS = 24;
         const currentTime = firstAction.time;
         let activeState = null;
@@ -360,22 +392,27 @@ class ThreeScene {
             activeState = 'approach';
         } else if (currentTime >= 100 / FPS && currentTime < 280 / FPS) {
             activeState = 'landed';
-        } else if (currentTime >= 280 / FPS && currentTime < 390 / FPS) {
+        } else if (currentTime >= 280 / FPS && currentTime < 360 / FPS) {
             activeState = 'takeoff';
         } else {
             activeState = 'airborne';
         }
 
-        // Avoid unnecessary DOM manipulation if the state hasn't changed
-        if (this.timelineContainer.dataset.currentState === activeState) {
-            return;
-        }
-        this.timelineContainer.dataset.currentState = activeState;
+        // --- Progress Bar Update ---
+        const progressIndicator = this.timelineContainer.querySelector('.timeline-progress');
+        const totalDuration = firstAction.getClip().duration;
+        const progress = (currentTime / totalDuration) * 100;
+        progressIndicator.style.width = `${progress}%`;
 
-        // Update button styles
-        this.timelineContainer.querySelectorAll('.timeline-step').forEach(btn => {
-            btn.classList.toggle('active', btn.dataset.state === activeState);
-        });
+        // --- State Update (only if changed) ---
+        if (this.timelineContainer.dataset.currentState !== activeState) {
+            this.timelineContainer.dataset.currentState = activeState;
+
+            // Update button styles
+            this.timelineContainer.querySelectorAll('.timeline-step').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.state === activeState);
+            });
+        }
     }
 
     goToState(state) {
@@ -395,25 +432,21 @@ class ThreeScene {
                 time = 280 / FPS;
                 break;
             case 'airborne':
-                time = 390 / FPS;
+                time = 360 / FPS;
                 break;
             default:
                 return;
         }
 
-        // Check if any animation is currently running.
-        const isPlaying = Array.from(this.animations.values()).some(action => action.isRunning());
-
         // Set the time for all animations
         this.animations.forEach(action => {
             action.time = time;
+            action.paused = false; // Ensure it's not paused
+            action.play();         // And play it
         });
 
-        // Also play the animations if they are currently paused.
-        if (!isPlaying) {
-            this.animations.forEach(action => action.play());
-            this.playButton.textContent = 'Pause';
-        }
+        // Update the main play/pause button to reflect the new state
+        this.playButton.textContent = 'Pause';
     }
 
     toggleGrid() {

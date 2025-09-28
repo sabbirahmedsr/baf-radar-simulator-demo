@@ -89,9 +89,9 @@
     background-color: var(--panel-dark);
     margin: auto;
     padding: 30px;
-    border: 1px solid var(--border-color);
-    width: 90%;
-    max-width: 700px;
+    border: 1px solid var(--border-color); /* Keep border */
+    width: 95%; /* Make it wider */
+    max-width: 1200px; /* Increase max-width for a much larger modal */
     border-radius: 8px;
     position: relative;
     animation: fadeIn 0.3s;

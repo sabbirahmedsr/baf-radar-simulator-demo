@@ -19,29 +19,14 @@
     </div>
   </div>
 
-  <!-- Section 2: Plan Details -->
-  <div class="plan-details">
-    <div class="plan-column">
-      <h3>The Vision</h3>
-      <ul>
-        <li><strong>Landing Scenario:</strong> As a virtual aircraft approaches the 6 DME mark, a physical model instantly appears on the diorama to mirror the final descent. After touchdown, it clears the runway and disappears, ready for the next arrival.</li>
-        <li><strong>Departure Scenario:</strong> When an aircraft lines up, its physical counterpart moves into position, accelerates for take-off, and vanishes from the diorama as it becomes airborne in the simulation.</li>
-      </ul>
-    </div>
-    <div class="plan-column">
-      <h3>Implementation Plan</h3>
-      <ul>
-        <li><strong>Connect:</strong> Establish a connection between this web software and an Arduino microcontroller via WebSockets or WebUSB.</li>
-        <li><strong>Build:</strong> Construct a physical tabletop runway and small robotic platforms to carry miniature aircraft models.</li>
-        <li><strong>Sync:</strong> Translate simulator data (position, heading) into movement commands for the physical robots.</li>
-      </ul>
-    </div>
-  </div>
-
-  <!-- Section 3: 3D Mechanical Design Previews -->
+  <!-- Section 2: 3D Mechanical Previews of Physical Motion -->
   <div class="animation-section">
-    <h3>3D Mechanical Design Previews</h3>
-    <p>Interactive 3D previews of the landing and take-off sequences, created in Blender and controlled via the web.</p>
+    <h3>3D Mechanical Previews of Physical Motion</h3>
+    <p><strong>Interactive 3D previews</strong> of landing and take-off sequences. This demonstrates how the 
+      <strong>physical model plane</strong> will smoothly  <strong>1.Appear</strong>, 
+      <strong>2.Follow the flight path</strong>, and then <strong>3.Disappear</strong> from the runway. The 
+      <strong>physical motion</strong> will be <strong>perfectly synchronized</strong> with
+      <strong>radar simulator in real-time</strong>.</p>
     <div class="animation-container" id="diorama-3d-container">
       <canvas id="diorama-3d-canvas"></canvas>
       <div class="navigation-help">
@@ -73,6 +58,7 @@
         </button>
       </div>
       <div class="animation-timeline" id="diorama-3d-timeline">
+        <div class="timeline-progress"></div>
         <button class="timeline-step" data-state="approach">Landing</button>
         <button class="timeline-step" data-state="landed">Reset after Landing</button>
         <button class="timeline-step" data-state="takeoff">Take-off</button>
@@ -81,11 +67,48 @@
     </div>
   </div>
 
+  <!-- Section 3: Plan Details -->
+  <div class="plan-details">
+    <div class="plan-column">
+      <h3>The Vision</h3>
+      <ul>
+        <li><strong>Landing Scenario:</strong> As a virtual aircraft approaches the 6 DME mark, a physical model instantly appears on the diorama to mirror the final descent. After touchdown, it clears the runway and disappears, ready for the next arrival.</li>
+        <li><strong>Departure Scenario:</strong> When an aircraft lines up, its physical counterpart moves into position, accelerates for take-off, and vanishes from the diorama as it becomes airborne in the simulation.</li>
+      </ul>
+    </div>
+    <div class="plan-column">
+      <h3>Implementation Plan</h3>
+      <ul>
+        <li><strong>Connect:</strong> Establish a connection between this web software and an Arduino microcontroller via WebSockets or WebUSB.</li>
+        <li><strong>Build:</strong> Construct a physical tabletop runway and small robotic platforms to carry miniature aircraft models.</li>
+        <li><strong>Sync:</strong> Translate simulator data (position, heading) into movement commands for the physical robots.</li>
+      </ul>
+    </div>
+  </div>
+
+
   <!-- Section 4: Inspirations -->
   <div class="inspiration-section">
     <h3>Inspirations</h3>
     <div class="inspiration-grid">
-      <!-- Inspiration 1: YouTube Video -->
+      <!-- Inspiration 1: Image (Enlargeable) -->
+      <div class="inspiration-card">
+        <div class="inspiration-card-media">
+          <img src="img/diorama/inspiration.png" alt="Interactive Airport Diorama">
+          <div class="media-controls-overlay">
+            <button class="enlarge-btn" data-enlargeable data-image-src="img/diorama/inspiration.png" title="Enlarge Image">
+              <i class="fa-solid fa-expand"></i>
+            </button>
+          </div>
+        </div>
+        <div class="inspiration-card-text">
+          <div class="inspiration-card-content">
+            <h4>Interactive Airport Diorama</h4>
+            <p class="inspiration-description">The World of Aviation with Moving Planes and Aircraft at Miniatur Wunderland</p>
+          </div>
+        </div>
+      </div>
+      <!-- Inspiration 2: YouTube Video -->
       <div class="inspiration-card">
         <div class="inspiration-card-media">
           <a href="https://www.youtube.com/watch?v=5tJn6MSwhFA" target="_blank" title="Watch on YouTube">
@@ -100,7 +123,7 @@
           </div>
         </a>
       </div>
-      <!-- Inspiration 2: YouTube Video -->
+      <!-- Inspiration 3: YouTube Video -->
       <div class="inspiration-card">
         <div class="inspiration-card-media">
           <a href="https://www.youtube.com/watch?v=vlx1CmNraFA" target="_blank" title="Watch on YouTube">
@@ -114,18 +137,7 @@
             <p class="inspiration-description">Another amazing example of automated model aircraft in action, showcasing realistic movements.</p>
           </div>
         </a>
-      </div>
-    </div>
-  </div>
-
-  <!-- Section 5: Concept Gallery -->
-  <div class="concept-gallery-section">
-    <h3>Concept Gallery</h3>
-    <p>A collection of concept images and diagrams illustrating the physical design and system architecture of the diorama project.</p>
-    <div class="concept-image-grid">
-      <img src="img/diorama/concept-1.png" alt="Concept 1" class="concept-image-item" data-enlargeable>
-      <img src="img/diorama/concept-2.png" alt="Concept 2" class="concept-image-item" data-enlargeable>
-      <img src="img/diorama/concept-3.png" alt="Concept 3" class="concept-image-item" data-enlargeable>
+      </div>     
     </div>
   </div>
 </div>
