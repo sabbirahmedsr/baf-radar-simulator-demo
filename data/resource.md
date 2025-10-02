@@ -19,3 +19,11 @@ An excellent example of a focused, single-purpose training tool from the Pilot I
 #### https://assetstore.unity.com/packages/tools/gui/analogical-flight-instruments-gui-code-152685
 ###### A Unity asset for flight instrument GUIs.
 This Unity asset demonstrates how to separate instrument logic from its visual representation. While built for Unity and C#, the same principles apply here. Our JavaScript `Aircraft` class holds the state (speed, altitude), and a rendering module (like `display.js`) could use that data to drive similar-looking SVG or Canvas-based gauges, creating a more immersive cockpit feel.
+
+---
+
+![3D Printer Hub](https://i.ytimg.com/vi/LsMP4IRas2c/maxresdefault.jpg)
+### Youtube: 3D Printer Hub 
+#### https://youtu.be/LsMP4IRas2c?si=D5nLCr6ETr6bBvkm
+###### A "Cholti Report" on 3D priting bangladesh
+this vide contain information about 3D printing.
