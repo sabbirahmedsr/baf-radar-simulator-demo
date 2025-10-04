@@ -27,3 +27,12 @@ This Unity asset demonstrates how to separate instrument logic from its visual r
 #### https://youtu.be/LsMP4IRas2c?si=D5nLCr6ETr6bBvkm
 ###### A "Cholti Report" on 3D priting bangladesh
 this vide contain information about 3D printing.
+
+---
+
+
+![DIY 3D Printed Flight Yoke](https://i.ytimg.com/vi/nO-lanEc5vM/maxresdefault.jpg)
+### DIY 3D Printed Flight Yoke
+#### https://www.youtube.com/watch?v=nO-lanEc5vM
+###### A guide to building a low-cost, 3D-printed flight yoke.
+This video demonstrates how to design and build a flight yoke from scratch using common materials and 3D-printed parts. It's a great reference for creating custom, low-cost physical controls for the simulator or diorama, showing the potential of DIY hardware integration.
