@@ -1,0 +1,113 @@
+<div class="room-design-container">
+    <h2>Room Design & Layout</h2>
+    <p>This section outlines the physical setup for the BAF Radar Simulator training room, including hardware configuration, room layout, and network management strategy.</p>
+
+    <div class="animation-section">
+        <h3>Conceptual Room Layout</h3>
+        <p>This is an interactive 3D model of the proposed room layout. You can rotate, pan, and zoom to inspect the arrangement of the server, network switch, and client stations.</p>
+        <div class="animation-container" id="room-design-3d-container">
+            <canvas id="room-design-3d-canvas"></canvas>
+            <div class="navigation-help">
+                <div class="help-item"><i class="fa-solid fa-arrows-rotate"></i><span><strong>LMB:</strong> Rotate</span></div>
+                <div class="help-item"><i class="fa-solid fa-hand"></i><span><strong>MMB:</strong> Pan</span></div>
+                <div class="help-item"><i class="fa-solid fa-magnifying-glass"></i><span><strong>Scroll:</strong> Zoom</span></div>
+            </div>
+            <div class="diorama-3d-controls">
+                <button id="room-design-reset-btn" class="primary">Reset View</button>
+            </div>
+            <div class="diorama-3d-view-controls">
+                <button id="room-design-grid-btn" class="view-control-btn" title="Toggle Grid"><i class="fa-solid fa-table-cells"></i></button>
+                <button id="room-design-camera-btn" class="view-control-btn" title="Toggle Camera Projection">
+                    <i class="perspective-icon fa-solid fa-camera"></i>
+                    <i class="orthographic-icon fa-solid fa-cube"></i>
+                </button>
+                <button id="room-design-maximize-btn" class="view-control-btn" title="Toggle Fullscreen">
+                    <i class="maximize-icon fa-solid fa-expand"></i>
+                    <i class="minimize-icon fa-solid fa-compress"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <h3>Software Architecture</h3>
+    <p>The simulation environment is powered by three distinct software packages, each tailored to a specific role within the training exercise.</p>
+    <div class="software-architecture-grid">
+        <div class="software-card server-software">
+            <div class="card-header">
+                <i class="fa-solid fa-database"></i>
+                <h4>Server Control</h4>
+            </div>
+            <div class="card-body">
+                <ul>
+                    <li>Manages core simulation state</li>
+                    <li>Shows client connection status</li>
+                    <li>Provides ASR/PAR monitoring views</li>
+                    <li>Includes server-level controls (e.g., scenarios, weather)</li>
+                </ul>
+            </div>
+        </div>
+        <div class="software-card officer-software">
+            <div class="card-header"><i class="fa-solid fa-user-tie"></i><h4>Officer Station</h4></div>
+            <div class="card-body"><ul><li>Full ASR and PAR visualization</li><li>Complete aircraft control system</li><li>Issues commands to aircraft</li><li>Receives real-time simulation data</li></ul></div>
+        </div>
+        <div class="software-card student-software">
+            <div class="card-header"><i class="fa-solid fa-user-graduate"></i><h4>Student Station</h4></div>
+            <div class="card-body"><ul><li>ASR and PAR visualization</li><li>Read-only access to aircraft data</li><li>No direct command input</li><li>Ideal for observation and learning</li></ul></div>
+        </div>
+    </div>
+
+    <h3>Network Topology Diagram</h3>
+    <div class="layout-diagram">
+        <svg class="connection-lines"></svg>
+        <div id="station-server" class="computer-box server">
+            <i class="fa-solid fa-server"></i>
+            <span>Server</span>
+        </div>
+        <div id="station-switch" class="computer-box network-switch">
+            <i class="fa-solid fa-network-wired"></i>
+            <span>Network Switch</span>
+        </div>
+        <div class="client-stations">
+            <div class="station-group">
+                <h4>Officer/Pilot Stations (5)</h4>
+                <div id="station-c1" class="computer-box client officer"><i class="fa-solid fa-desktop"></i><span>C1</span></div>
+                <div id="station-c2" class="computer-box client officer"><i class="fa-solid fa-desktop"></i><span>C2</span></div>
+                <div id="station-c3" class="computer-box client officer"><i class="fa-solid fa-desktop"></i><span>C3</span></div>
+                <div id="station-c4" class="computer-box client officer"><i class="fa-solid fa-desktop"></i><span>C4</span></div>
+                <div id="station-c5" class="computer-box client officer"><i class="fa-solid fa-desktop"></i><span>C5</span></div>
+            </div>
+            <div class="station-group">
+                <h4>Student Stations (2)</h4>
+                <div id="station-s1" class="computer-box client student"><i class="fa-solid fa-desktop"></i><span>S1</span></div>
+                <div id="station-s2" class="computer-box client student"><i class="fa-solid fa-desktop"></i><span>S2</span></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="plan-details">
+        <div class="plan-column">
+            <h3>Hardware Configuration</h3>
+            <p>The system is designed around a central server managing the simulation for multiple client stations.</p>
+            <ul>
+                <li><strong>1x Server Computer:</strong> Runs the core simulation logic, manages all aircraft, and serves data to all clients.</li>
+                <li><strong>1x Network Switch:</strong> Provides a dedicated, high-speed local network for all simulator computers.</li>
+                <li><strong>7x Client Computers:</strong> Connect to the server to display radar views and interact with the simulation.</li>
+            </ul>
+            <h4>Client Allocation:</h4>
+            <ul>
+                <li><strong>5x Officer/Pilot Stations:</strong> These stations are for primary trainees, providing a full-featured radar interface.</li>
+                <li><strong>2x Student Stations:</strong> These stations can be used for observation or secondary tasks, potentially with a more limited set of controls.</li>
+            </ul>
+        </div>
+        <div class="plan-column">
+            <h3>Network & Cable Management</h3>
+            <p>A clean and organized setup is crucial for maintenance and reliability.</p>
+            <ul>
+                <li><strong>Network:</strong> All computers will be connected via a dedicated, high-speed Local Area Network (LAN) using the central network switch to ensure low latency.</li>
+                <li><strong>Cabling:</strong> All power and network cables will be managed using under-desk cable trays and raceways to prevent clutter and tripping hazards.</li>
+                <li><strong>Peripherals:</strong> Each station will be equipped with a monitor, keyboard, mouse, and headset, with cables neatly routed.</li>
+            </ul>
+        </div>
+    </div>
+
+</div>

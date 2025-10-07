@@ -1,0 +1,147 @@
+/* --- Room Design View Specifics --- */
+.room-design-container {
+    max-width: 1200px;
+    margin: 20px auto;
+    background: var(--panel-dark);
+    padding: 30px 40px;
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+}
+
+.room-design-container h2 {
+    color: var(--accent-blue);
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 10px;
+}
+
+.room-design-container h3 {
+    color: var(--accent-green);
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 8px;
+    margin-top: 30px;
+}
+
+.room-design-container p {
+    color: var(--text-medium);
+    line-height: 1.6;
+}
+
+/* Re-using some styles from diorama.css for consistency */
+.room-design-container .plan-details {
+    display: flex;
+    gap: 40px;
+    margin-top: 20px;
+}
+.room-design-container .plan-column {
+    flex: 1;
+}
+.room-design-container ul {
+    list-style-type: none;
+    padding-left: 0;
+}
+.room-design-container li {
+    background-color: var(--bg-dark);
+    padding: 10px;
+    border-radius: 4px;
+    margin-bottom: 10px;
+    border-left: 3px solid var(--accent-green);
+}
+
+/* --- Layout Diagram --- */
+.layout-diagram {
+    background: var(--bg-dark);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 20px;
+    margin-top: 20px;
+    text-align: center; /* Center-aligns inline-block children */
+    position: relative; /* For positioning the SVG overlay */
+}
+.client-stations {
+    margin-top: 20px;
+}
+/* This was a flex container, now it's a block for simpler layout */
+.client-stations {
+    display: flex;
+    gap: 40px;
+    justify-content: center;
+    width: 100%;
+}
+.station-group { text-align: center; }
+.station-group h4 { color: var(--text-medium); margin-bottom: 15px; }
+.computer-box {    
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    padding: 15px;
+    border-radius: 6px;
+    border: 1px solid var(--border-color);
+    background: var(--panel-dark);
+    color: var(--text-light);
+    margin: 5px;
+    position: relative; /* Ensure boxes are on top of lines */
+    z-index: 2;
+}
+.computer-box.server { border-color: var(--accent-blue); }
+.computer-box.network-switch { border-color: var(--accent-orange); margin-top: 60px; }
+.computer-box.officer { border-color: var(--accent-green); }
+.computer-box.student { border-color: var(--accent-orange); }
+.computer-box i { font-size: 1.5em; }
+
+/* --- Connection Lines --- */
+.connection-lines {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1; /* Place lines behind the boxes */
+}
+.connection-lines line {
+    stroke-width: 2;
+    stroke-dasharray: 4 4;
+}
+.connection-lines .line-server { stroke: var(--accent-blue); }
+.connection-lines .line-client { stroke: var(--text-medium); }
+
+/* --- Software Architecture Section --- */
+.software-architecture-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 20px;
+    margin-top: 20px;
+}
+
+.software-card {
+    background-color: var(--bg-dark);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.software-card .card-header {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 15px;
+    background-color: var(--panel-dark);
+    border-bottom: 1px solid var(--border-color);
+}
+
+.software-card .card-header i {
+    font-size: 1.5em;
+}
+
+.software-card .card-header h4 {
+    margin: 0;
+    font-size: 1.1em;
+    color: var(--text-light);
+}
+
+.software-card.server-software { border-left: 4px solid var(--accent-blue); }
+.software-card.officer-software { border-left: 4px solid var(--accent-green); }
+.software-card.student-software { border-left: 4px solid var(--accent-orange); }
+
+.software-card .card-body ul { margin-top: 15px; }
+.software-card .card-body li { border-left: none; background: none; }

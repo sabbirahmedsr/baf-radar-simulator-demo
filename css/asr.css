@@ -1,5 +1,5 @@
 /* --- Simulator View Layout --- */
-#simulator-view.active {
+#asr-view.active {
     display: flex;
     justify-content: center;
 }

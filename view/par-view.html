@@ -1,4 +1,28 @@
-<div class="par-container">
-  <h2>Precision Approach Radar (PAR)</h2>
-  <p>This view will provide a detailed, zoomed-in display for guiding aircraft during final approach, showing both vertical and horizontal deviation from the ideal glideslope.</p>
+<div id="par-container">
+  <div id="par-display-container">
+    <div class="par-scope">
+      <h3 class="scope-title">Localizer (Azimuth)</h3>
+      <canvas id="parLocalizerCanvas"></canvas>
+    </div>
+    <div class="par-scope">
+      <h3 class="scope-title">Glideslope (Elevation)</h3>
+      <canvas id="parGlideslopeCanvas"></canvas>
+    </div>
+  </div>
+  <div id="parSidePanel">
+    <h3>Selected Target</h3>
+    <div id="parDataPanel" class="dataBlock">No selection</div>
+    
+    <h3>PAR Controls</h3>
+    <div class="control-group">
+        <label for="parRunwaySelect">Runway:</label>
+        <select id="parRunwaySelect">
+            <option value="14">Runway 14</option>
+            <option value="32">Runway 32</option>
+        </select>
+    </div>
+
+    <h3>Log</h3>
+    <div id="parLogPanel" class="dataBlock">PAR System Standby.</div>
+  </div>
 </div>

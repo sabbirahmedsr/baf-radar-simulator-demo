@@ -7,6 +7,7 @@
  */
 import { Diorama } from './ui/diorama.js';
 import { init3DScenes } from './ui/diorama-3d.js';
+import { ThreeDViewer } from './ui/three-viewer.js';
 
 // Simple SPA router
 document.addEventListener('DOMContentLoaded', () => {
@@ -30,6 +31,9 @@ document.addEventListener('DOMContentLoaded', () => {
           } else if (viewId === 'resource-view') {
             await populateResourceGrid();
             setupModalListeners(); // Set up listeners for the newly created resource cards
+          } else if (viewId === 'room-design-view') {
+            setupRoomDesign3DView();
+            setupRoomDesignDiagram();
           } else if (viewId === 'asr-view') { // This was 'simulator-view'
             // Dynamically import the main simulator script.
             // This ensures the radarCanvas and other elements are in the DOM
@@ -37,7 +41,8 @@ document.addEventListener('DOMContentLoaded', () => {
             // The main.js script will then self-initialize the Simulation.
             await import('./main.js');
           } else if (viewId === 'par-view') {
-            // Placeholder for PAR view initialization
+            // Dynamically import the PAR script to initialize its canvases.
+            await import('./par.js');
           }
       } catch (error) {
         console.error('Failed to load view:', error);
@@ -52,6 +57,59 @@ document.addEventListener('DOMContentLoaded', () => {
     const slider = document.getElementById('diorama-slider');
     const scenarioRadios = document.querySelectorAll('input[name="scenario"]');
     new Diorama(canvas, slider, scenarioRadios);
+  };
+
+  const setupRoomDesign3DView = () => {
+    if (document.getElementById('room-design-3d-canvas')) {
+      new ThreeDViewer({
+        canvasId: 'room-design-3d-canvas',
+        modelPath: 'models/room_layout.glb', // Placeholder for your model
+        controls: {
+          reset: 'room-design-reset-btn',
+          maximize: 'room-design-maximize-btn',
+          grid: 'room-design-grid-btn',
+          camera: 'room-design-camera-btn',
+        },
+        groundLevel: -0.05 // Lowered by 5cm
+      });
+    }
+  };
+
+  const setupRoomDesignDiagram = () => {
+    const diagram = document.querySelector('.layout-diagram');
+    if (!diagram) return;
+
+    const svg = diagram.querySelector('.connection-lines');
+    const server = document.getElementById('station-server');
+    const networkSwitch = document.getElementById('station-switch');
+    const clients = Array.from(diagram.querySelectorAll('.computer-box.client'));
+
+    const createLine = (el1, el2, className) => {
+        const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+        const diagramRect = diagram.getBoundingClientRect();
+        const r1 = el1.getBoundingClientRect();
+        const r2 = el2.getBoundingClientRect();
+
+        // Calculate center points relative to the diagram container
+        const p1 = { x: r1.left + r1.width / 2 - diagramRect.left, y: r1.top + r1.height / 2 - diagramRect.top };
+        const p2 = { x: r2.left + r2.width / 2 - diagramRect.left, y: r2.top + r2.height / 2 - diagramRect.top };
+
+        line.setAttribute('x1', p1.x);
+        line.setAttribute('y1', p1.y);
+        line.setAttribute('x2', p2.x);
+        line.setAttribute('y2', p2.y);
+        line.setAttribute('class', className);
+        return line;
+    };
+
+    // Clear any existing lines
+    svg.innerHTML = '';
+
+    // Draw server to switch
+    svg.appendChild(createLine(server, networkSwitch, 'line-server'));
+
+    // Draw switch to all clients
+    clients.forEach(client => svg.appendChild(createLine(networkSwitch, client, 'line-client')));
   };
 
   const setupDioramaModalListeners = () => {
