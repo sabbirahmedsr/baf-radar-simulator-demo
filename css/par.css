@@ -1,0 +1,14 @@
+/* --- PAR View Specifics --- */
+.par-container {
+    max-width: 1200px;
+    margin: 20px auto;
+    background: var(--panel-dark);
+    padding: 30px 40px;
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+}
+.par-container h2 {
+    color: var(--accent-blue);
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 10px;
+}

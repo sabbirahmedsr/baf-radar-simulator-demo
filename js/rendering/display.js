@@ -56,7 +56,10 @@ export class Display {
 
     // --- Update display targets based on sweep position ---
     const sweepCycled = radar.sweepAngle < this.lastSweepAngle;
-    if (sweepCycled) {
+    // A sweep cycle completes when it goes from a high value (e.g., 359) to a low one (e.g., 0).
+    // The original check was just `radar.sweepAngle < this.lastSweepAngle`.
+    // This more robust check prevents false triggers if the angle jitters slightly.
+    if (this.lastSweepAngle > 350 && radar.sweepAngle < 10) {
       // Reset the update flag for all targets at the start of a new sweep
       for (const target of this.displayTargets.values()) {
         target.updatedThisSweep = false;
@@ -65,7 +68,9 @@ export class Display {
 
     // Update the map of displayable targets with live data
     aircraftList.forEach(liveAc => {
-      const bearing = (Math.atan2(-liveAc.posKm.y, liveAc.posKm.x) * 180 / Math.PI + 360) % 360;
+      // Calculate bearing in navigational system (0=N, 90=E, clockwise)
+      // atan2(x, y) gives angle from North, clockwise.
+      const bearing = (Math.atan2(liveAc.posKm.x, liveAc.posKm.y) * 180 / Math.PI + 360) % 360;
       const angleDiff = (radar.sweepAngle - bearing + 360) % 360;
 
       let currentTarget = this.displayTargets.get(liveAc.id);
@@ -84,6 +89,7 @@ export class Display {
 
     this.renderRunways();
     this.renderGrid(radar.range);
+    this._renderCompassRose(radar.range);
     this.renderSweep(radar.sweepAngle, radar.range);
 
     // Render from the displayTargets map, which only updates on sweep hits
@@ -98,21 +104,39 @@ export class Display {
   renderRunways() {
     // VGHS (Dhaka) Runway 14/32 is at 144 degrees.
     const runway = {
-      id: 'VGHS 14/32',
-      heading: 144, // degrees
-      lengthKm: 3.2,
-      widthKm: 0.045
+      heading: 144, // The correct heading for runway 14/32
+      lengthKm: 10.0, // Using a long visual length for prominence
     };
 
     this.ctx.save();
-    this.ctx.rotate(runway.heading * Math.PI / 180);
-
+    // Convert navigational heading to canvas angle (0=E, CCW)
+    const rotationRad = (runway.heading - 90) * Math.PI / 180;
+    this.ctx.rotate(rotationRad);
     const lengthPx = this.kmToPx(runway.lengthKm);
-    const widthPx = this.kmToPx(runway.widthKm);
 
-    // Draw runway surface
-    this.ctx.fillStyle = this.theme.runway;
-    this.ctx.fillRect(-lengthPx / 2, -widthPx / 2, lengthPx, widthPx);
+    // Draw runway as a single, solid line
+    this.ctx.strokeStyle = '#fff'; // White centerline
+    this.ctx.lineWidth = 2; // Make it slightly thicker to be visible
+    this.ctx.setLineDash([]); // Ensure the line is solid
+    this.ctx.beginPath();
+    this.ctx.moveTo(-lengthPx / 2, 0);
+    this.ctx.lineTo(lengthPx / 2, 0);
+    this.ctx.stroke();
+
+    // Draw runway numbers
+    this.ctx.fillStyle = '#484848'; // Use the same subtle color as the compass rose
+    this.ctx.font = '12px Segoe UI'; // Make the font smaller and not bold
+    this.ctx.textAlign = 'center';
+    this.ctx.textBaseline = 'middle';
+    const numberOffset = 20; // Distance from the runway end
+
+    // Runway 14 is at the "end" of the line in the 144-degree direction
+    // This is the approach end from the northwest (324°), so it gets the number '14'.
+    this.ctx.fillText('14', -lengthPx / 2 - numberOffset, 0);
+
+    // Runway 32 is at the "start" of the line
+    // This is the approach end from the southeast (144°), so it gets the number '32'.
+    this.ctx.fillText('32', lengthPx / 2 + numberOffset, 0);
 
     this.ctx.restore();
   }
@@ -129,12 +153,14 @@ export class Display {
   }
 
   renderSweep(angle, rangeKm){
-    const ang = angle * Math.PI/180;
+    // Convert navigational angle (0=N) to canvas angle (0=E, CCW)
+    // We subtract 90 degrees to shift North (0) to the top of the canvas (-90).
+    const angRad = (angle - 90) * Math.PI / 180;
     this.ctx.save();
-    this.ctx.rotate(ang);
+    this.ctx.rotate(angRad);
     const rangePx = this.kmToPx(rangeKm);
     const grad = this.ctx.createLinearGradient(0,0,rangePx,0);
-    grad.addColorStop(0, 'rgba(0,255,0,0.25)'); // Increased opacity for visibility
+    grad.addColorStop(0, 'rgba(80, 227, 194, 0.25)'); // Use theme color
     grad.addColorStop(1, 'rgba(0,255,0,0)');
     this.ctx.fillStyle = grad;
     this.ctx.beginPath();
@@ -142,6 +168,51 @@ export class Display {
     this.ctx.arc(0,0, rangePx, -0.5, 0.5); // Made the sweep cone even wider
     this.ctx.closePath();
     this.ctx.fill();
+    this.ctx.restore();
+  }
+
+  /**
+   * Renders a static compass rose in the background.
+   * @param {number} rangeKm - The current radar range in kilometers.
+   * @private
+   */
+  _renderCompassRose(rangeKm) {
+    // Position text exactly between the 3rd (75%) and 4th (100%) rings.
+    const textRadiusPx = this.kmToPx(rangeKm) * 0.875;
+    const tickRadiusPx = this.kmToPx(rangeKm);
+    this.ctx.save();
+    // Use a very subtle color that almost blends with the background
+    this.ctx.fillStyle = '#484848'; // Increased contrast slightly for better visibility
+    this.ctx.strokeStyle = '#484848';
+    this.ctx.font = "10px 'Segoe UI'"; // Revert to a slightly larger font
+    this.ctx.textAlign = 'center';
+    this.ctx.textBaseline = 'middle';
+
+    // Draw tick marks and numbers at 15-degree intervals
+    for (let angleDeg = 0; angleDeg < 360; angleDeg += 15) {
+      const angleRad = (angleDeg - 90) * Math.PI / 180;
+
+      const isMajorInterval = angleDeg % 30 === 0;
+      const tickLength = isMajorInterval ? 10 : 5; // Major ticks are longer
+
+      // Draw the tick mark
+      const startX = (tickRadiusPx - tickLength) * Math.cos(angleRad);
+      const startY = (tickRadiusPx - tickLength) * Math.sin(angleRad);
+      const endX = tickRadiusPx * Math.cos(angleRad);
+      const endY = tickRadiusPx * Math.sin(angleRad);
+      this.ctx.beginPath();
+      this.ctx.moveTo(startX, startY);
+      this.ctx.lineTo(endX, endY);
+      this.ctx.stroke();
+
+      // Draw the text only on major intervals (every 30 degrees)
+      if (isMajorInterval) {
+        const x = textRadiusPx * Math.cos(angleRad); // Position for the text
+        const y = textRadiusPx * Math.sin(angleRad);
+        const text = angleDeg.toString().padStart(3, '0') + '°';
+        this.ctx.fillText(text, x, y);
+      }
+    }
     this.ctx.restore();
   }
 
@@ -188,9 +259,11 @@ export class Display {
 
   _renderHeadingVector(p, data, isSelected) {
     const vectorLength = DISPLAY_CONFIG.headingVectorLength;
-    const headingRad = data.heading * (Math.PI / 180);
-    const endX = p.x + Math.cos(headingRad) * vectorLength;
-    const endY = p.y - Math.sin(headingRad) * vectorLength; // Invert Y for screen coordinates
+    // Convert navigational heading to a standard angle for drawing.
+    // sin(heading) for x, cos(heading) for y, and negate y for screen coordinates.
+    const headingRad = data.heading * (Math.PI / 180); 
+    const endX = p.x + Math.sin(headingRad) * vectorLength;
+    const endY = p.y - Math.cos(headingRad) * vectorLength;
     this.ctx.beginPath();
     this.ctx.moveTo(p.x, p.y);
     this.ctx.lineTo(endX, endY);

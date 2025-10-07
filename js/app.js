@@ -30,13 +30,15 @@ document.addEventListener('DOMContentLoaded', () => {
           } else if (viewId === 'resource-view') {
             await populateResourceGrid();
             setupModalListeners(); // Set up listeners for the newly created resource cards
-          } else if (viewId === 'simulator-view') {
+          } else if (viewId === 'asr-view') { // This was 'simulator-view'
             // Dynamically import the main simulator script.
             // This ensures the radarCanvas and other elements are in the DOM
             // before the Simulation class tries to access them.
             // The main.js script will then self-initialize the Simulation.
             await import('./main.js');
-          }            
+          } else if (viewId === 'par-view') {
+            // Placeholder for PAR view initialization
+          }
       } catch (error) {
         console.error('Failed to load view:', error);
         viewElement.innerHTML = `<p style="color: red;">Error loading content.</p>`;

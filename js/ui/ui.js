@@ -368,6 +368,12 @@ export class UI {
         this.guiCmdHeading.value = '';
       }
     });
+    this.guiCmdHeading.addEventListener('keyup', (e) => {
+      if (e.key === 'Enter') {
+        // Trigger the button click to avoid duplicating logic
+        this.guiSendHeading.click();
+      }
+    });
 
     this.guiSendAltitude.addEventListener('click', () => {
       const callsign = this.simulation.selected?.callsign;
@@ -377,6 +383,11 @@ export class UI {
         this.guiCmdAltitude.value = '';
       }
     });
+    this.guiCmdAltitude.addEventListener('keyup', (e) => {
+      if (e.key === 'Enter') {
+        this.guiSendAltitude.click();
+      }
+    });
 
     this.guiSendSpeed.addEventListener('click', () => {
       const callsign = this.simulation.selected?.callsign;
@@ -384,6 +395,11 @@ export class UI {
       if (callsign && speed) {
         this.simulation.processCommand(`${callsign} S ${speed}`);
         this.guiCmdSpeed.value = '';
+      }
+    });
+    this.guiCmdSpeed.addEventListener('keyup', (e) => {
+      if (e.key === 'Enter') {
+        this.guiSendSpeed.click();
       }
     });
 

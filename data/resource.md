@@ -22,17 +22,56 @@ This Unity asset demonstrates how to separate instrument logic from its visual r
 
 ---
 
-![3D Printer Hub](https://i.ytimg.com/vi/LsMP4IRas2c/maxresdefault.jpg)
-### Youtube: 3D Printer Hub 
-#### https://youtu.be/LsMP4IRas2c?si=D5nLCr6ETr6bBvkm
-###### A "Cholti Report" on 3D priting bangladesh
-this vide contain information about 3D printing.
+![Logitech Flight Sim Gear](https://miro.medium.com/0*F70OinyokG4ZU8ZK)
+### Logitech : Flight Sim Gear
+#### https://www.logitechg.com/en-au/products/flight.html
+###### Professional-grade flight simulation hardware.
+Logitech offers a wide range of flight simulation hardware, including yokes, throttles, and rudder pedals. These products provide a tactile and immersive experience, bridging the gap between software simulation and physical interaction. This is a key inspiration for creating custom physical controls for the diorama project.
 
 ---
-
 
 ![DIY 3D Printed Flight Yoke](https://i.ytimg.com/vi/nO-lanEc5vM/maxresdefault.jpg)
 ### DIY 3D Printed Flight Yoke
 #### https://www.youtube.com/watch?v=nO-lanEc5vM
 ###### A guide to building a low-cost, 3D-printed flight yoke.
 This video demonstrates how to design and build a flight yoke from scratch using common materials and 3D-printed parts. It's a great reference for creating custom, low-cost physical controls for the simulator or diorama, showing the potential of DIY hardware integration.
+
+---
+
+![3D Printer Hub](https://i.ytimg.com/vi/LsMP4IRas2c/maxresdefault.jpg)
+### Youtube: 3D Printer Hub 
+#### https://youtu.be/LsMP4IRas2c?si=D5nLCr6ETr6bBvkm
+###### A "Cholti Report" on 3D priting bangladesh
+this video contain information about 3D printing.
+
+---
+
+![Silantro Flight Simulator Toolkit](https://i.ytimg.com/vi/kN_VSrRKnkM/maxresdefault.jpg)
+### Asset: Silantro Flight Simulator Toolkit
+#### https://assetstore.unity.com/packages/tools/physics/silantro-flight-simulator-toolkit-128025
+###### A comprehensive Unity toolkit for building realistic aircraft with modular components.
+This Unity asset is a complete toolkit for developing complex aircraft. It features a realistic, modular physics system and includes components for jet engines, propellers, and landing gears. It also include "AUTO PILOT" system.
+
+---
+
+![NWH Aerodynamics Asset](https://i.ytimg.com/vi/j_rEuzFUFgI/maxresdefault.jpg)
+### Asset: NWH Aerodynamics
+#### https://assetstore.unity.com/packages/tools/physics/nwh-aerodynamics-193240
+###### A realistic and flexible flight simulation package for Unity.
+NWH Aerodynamics is a flight simulation and aerodynamics package for Unity with a focus on realism, ease of use, and flexibility. This asset is a great example of showing how to model forces like lift, drag, and thrust for more realistic aircraft behavior in the simulator.
+
+---
+
+![Unity FlightPhysics](https://i.ytimg.com/vi/XFsG60aaNnU/maxresdefault.jpg)
+### Github: Unity FlightPhysics
+#### https://github.com/ertanturan/Unity-FlightPhysics
+###### An open-source, real physics-based flight simulator for Unity.
+This open-source project provides a clear, code-level implementation of flight physics in C# for Unity. It serves as an excellent reference for understanding how to apply aerodynamic principles like lift, drag, and engine thrust in code, which directly informs the development of the `physics.js` module for this simulator.
+
+---
+
+![SpriteLights Asset](https://i.ytimg.com/vi/ANCrgK-O0HY/maxresdefault.jpg)
+### Asset: SpriteLights
+#### https://assetstore.unity.com/packages/vfx/shaders/spritelights-46409
+###### A Unity asset for rendering thousands of lights with a twist
+SpriteLights is a shader-based system for rendering a massive number of light sources, like those on a runway or city at night. It's highly relevant to the diorama, as it shows a performant technique for creating realistic PAPI lights, strobes, and other aviation-specific lighting that would bring the physical model to life.

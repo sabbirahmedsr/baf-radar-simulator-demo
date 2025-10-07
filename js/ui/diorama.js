@@ -1,8 +1,8 @@
 /**
  * Module: diorama.js
  *
- * This module defines the Diorama class, which encapsulates all the logic
- * for the interactive 2D diorama demonstration on the "Airport Diorama" page.
+ * This module defines the Diorama class, which encapsulates all the logic for
+ * the interactive 2D diorama demonstration on the "Diorama" page.
  * It handles canvas rendering, user input from the slider and radio buttons,
  * and the animation logic for landing and take-off scenarios.
  */

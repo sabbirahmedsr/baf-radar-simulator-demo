@@ -1,8 +1,8 @@
 /**
  * Module: diorama-3d.js
  *
- * This module defines the Diorama3D class, which manages individual
- * 3D animation scenes on the "Airport Diorama" page.
+ * This module defines the Diorama3D class, which manages individual 3D
+ * animation scenes on the "Diorama" page.
  */
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';

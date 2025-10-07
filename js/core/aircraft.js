@@ -100,7 +100,10 @@ export class Aircraft {
     // simple evasive: small heading change away from other
     const other = conflict.a === this ? conflict.b : conflict.a;
     const brg = Physics.bearingTo(this.posKm, other.posKm);
-    this.target.heading = (brg + 90) % 360;
+    // With navigational bearings (0=N, 90=E), a 90-degree right turn is simply adding 90.
+    // The original calculation was based on a different angular system.
+    // This makes a standard right-hand turn for evasion.
+    this.target.heading = (brg + 90) % 360; 
     this.target.altitude = this.altitudeFt + 2000;
     this.state = 'evasive';
   }
