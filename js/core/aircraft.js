@@ -68,12 +68,9 @@ export class Aircraft {
     // normalized command object: {type, target, params}
     switch(command.type){
       case 'set_heading': this.target.heading = command.params.heading; this.state='following_command'; break;
-      case 'climb_to': this.target.altitude = command.params.altitude; this.state='climbing'; break;
-      case 'descend_to': this.target.altitude = command.params.altitude; this.state='descending'; break;
+      case 'set_altitude': this.target.altitude = command.params.altitude; this.state='altitude_change'; break;
       case 'set_speed': this.target.speed = command.params.speed; break;
       case 'maintain': this.target.altitude = command.params.altitude; break;
-      case 'vector': this.target.waypoint = { x: command.params.x, y: command.params.y }; break;
-      case 'hold': this.state='holding'; break;
       // squawk etc can be stored
       default: break;
     }

@@ -4,6 +4,11 @@
     <canvas id="radarCanvas" width="800" height="800"></canvas>
   </div>
   <div id="sidePanel">
+    <h3>Command Line</h3>
+    <div id="cmdLine">
+      <input id="cmdInput" placeholder="e.g. AC101 H 270 A 8" />
+      <button id="cmdSend">Send</button>
+    </div>
     <h3>Selected Target</h3>
     <div id="dataPanel" class="dataBlock">No selection</div>
     <div id="guiCommandPanel">
@@ -29,12 +34,9 @@
           <button id="guiSendSpeed">Set</button>
         </div>
       </div>
-      <div class="gui-command-row">
-        <button id="guiSendHold">Engage Hold</button>
-      </div>
     </div>
-    <h3 class="collapsible-header active">Controls</h3>
-    <div class="collapsible-content">
+    <h3 id="controls-section-header" class="collapsible-header active">Controls</h3>
+    <div id="controls-section-content" class="collapsible-content">
       <div class="control-group">
         <h4>Aircraft</h4>
         <button id="addAircraftBtn">Add Aircraft</button>
@@ -54,32 +56,14 @@
     <h3 class="collapsible-header">Command Help</h3>
     <div class="collapsible-content">
       <div class="control-group">
-        <p class="help-desc">Commands are in the format: <br><span class="help-command">&lt;Callsign&gt; &lt;Verb&gt; &lt;Param&gt;</span></p>
-        <p><span class="help-command">C &lt;heading&gt;</span><br><span class="help-desc">Clearance to a 3-digit heading. Ex: <span class="help-command">C 090</span></span></p>
-        <p><span class="help-command">C &lt;altitude&gt;</span><br><span class="help-desc">Clearance to an altitude (x1000 ft). Ex: <span class="help-command">C 12</span> (for 12,000 ft)</span></p>
+        <p class="help-desc">Format: <span class="help-command">&lt;Callsign&gt; &lt;Verb&gt; &lt;Param&gt;</span></p>
+        <p><span class="help-command">H &lt;heading&gt;</span><br><span class="help-desc">Set heading (0-359). Ex: <span class="help-command">H 270</span></span></p>
+        <p><span class="help-command">A &lt;altitude&gt;</span><br><span class="help-desc">Set altitude (x1000 ft). Ex: <span class="help-command">A 9</span> (for 9,000 ft)</span></p>
         <p><span class="help-command">S &lt;speed&gt;</span><br><span class="help-desc">Set speed in knots. Ex: <span class="help-command">S 250</span></span></p>
-        <p><span class="help-command">H</span><br><span class="help-desc">Hold current position.</span></p>
         <hr>
         <p class="help-desc">Commands can be chained:</p>
-        <p><span class="help-command">AC101 C 270 C 8 S 210</span></p>
+        <p><span class="help-command">AC101 H 270 A 8 S 210</span></p>
       </div>
     </div>
-    <h3>Command Line</h3>
-    <div id="cmdLine">
-      <input id="cmdInput" placeholder="e.g. AC101 C 090 C 15 S 300" />
-      <button id="cmdSend">Send</button>
-    </div>
-    <h3>Metrics</h3>
-    <div id="metricsPanel" class="dataBlock">
-      <div>Near-misses: <span id="metricNearMiss">0</span></div>
-      <div>Conflicts resolved: <span id="metricResolved">0</span></div>
-      <div>Commands issued: <span id="metricCommands">0</span></div>
-    </div>
-    <h3>Log</h3>
-    <div id="logPanel"></div>
-    <h3>Aircraft List</h3>
-    <div id="aircraftList"></div>
   </div>
 </div>
-
-

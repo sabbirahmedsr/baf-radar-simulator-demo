@@ -40,9 +40,9 @@ document.addEventListener('DOMContentLoaded', () => {
             // before the Simulation class tries to access them.
             // The main.js script will then self-initialize the Simulation.
             await import('./main.js');
-          } else if (viewId === 'par-view') {
-            // Dynamically import the PAR script to initialize its canvases.
-            await import('./par.js');
+          } else if (viewId === 'par-view') { // PAR view logic moved to nav handler
+            // The script will be imported and initialized after the view is made active
+            // to ensure correct canvas dimensions.
           }
       } catch (error) {
         console.error('Failed to load view:', error);
@@ -179,8 +179,16 @@ document.addEventListener('DOMContentLoaded', () => {
         views.forEach(view => view.classList.remove('active'));
         navLinks.forEach(navLink => navLink.classList.remove('active'));
         link.classList.add('active');
-        document.getElementById(targetViewId).classList.add('active');
+        const targetView = document.getElementById(targetViewId);
+        targetView.classList.add('active');
         window.history.pushState({}, '', link.href);
+
+        // If the new view is the PAR view, initialize its script now that it's visible.
+        if (targetViewId === 'par-view') {
+          import('./par.js').then(parModule => {
+            parModule.initializeParDisplay();
+          });
+        }
       });
     });
   });

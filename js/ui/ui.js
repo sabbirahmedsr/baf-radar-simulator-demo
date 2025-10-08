@@ -49,7 +49,6 @@ export class UI {
     this.guiSendAltitude = document.getElementById('guiSendAltitude');
     this.guiCmdSpeed = document.getElementById('guiCmdSpeed');
     this.guiSendSpeed = document.getElementById('guiSendSpeed');
-    this.guiSendHold = document.getElementById('guiSendHold');
 
     this._loadThemeColors();
     this._setupEventListeners();
@@ -85,36 +84,26 @@ export class UI {
   _on(evt, cb){ this.handlers[evt] = this.handlers[evt] || []; this.handlers[evt].push(cb); }
   _emit(evt, arg){ (this.handlers[evt]||[]).forEach(cb=>cb(arg)); }
 
-  updateLog(log){
-    const el = document.getElementById('logPanel');
-    el.innerHTML = log.slice(0,200).map(l => `<div>${l}</div>`).join('');
-  }
-
-  updateMetrics(metrics){
-    document.getElementById('metricNearMiss').textContent = metrics.nearMiss||0;
-    document.getElementById('metricResolved').textContent = metrics.resolved||0;
-    document.getElementById('metricCommands').textContent = metrics.commands||0;
-  }
-
-  updateAircraftList(list, onSelect){
-    const el = document.getElementById('aircraftList');
-    el.innerHTML = '';
-    for (const a of list){
-      const div = document.createElement('div');
-      div.textContent = `${a.callsign} ${Math.round(a.speedKts)}kts ${Math.round(a.altitudeFt)}ft`;
-      div.style.cursor = 'pointer';
-      div.onclick = ()=> onSelect(a.callsign);
-      el.appendChild(div);
-    }
-  }
-
   updateSelection(data){
     const el = document.getElementById('dataPanel');
+    const cmdInput = document.getElementById('cmdInput');
+
     if (!data) {
       el.textContent = 'No selection';
       this.guiCommandPanel.style.display = 'none'; // Hide command panel
+      // Clear callsign from command input if nothing is selected
+      if (!cmdInput.value.includes(' ')) cmdInput.value = '';
       return;
     }
+
+    // Auto-fill callsign in command input only if it's empty or just has a different callsign.
+    // This prevents overwriting user input.
+    const parts = cmdInput.value.trim().split(/\s+/);
+    if (parts.length <= 1) { // If input is empty or just contains a callsign
+      cmdInput.value = data.callsign + ' ';
+      cmdInput.focus(); // Set focus to the input for immediate typing
+    }
+
     // Show command panel if it was hidden
     this.guiCommandPanel.style.display = 'block';
     el.innerHTML = `
@@ -363,8 +352,8 @@ export class UI {
     this.guiSendHeading.addEventListener('click', () => {
       const callsign = this.simulation.selected?.callsign;
       const heading = this.guiCmdHeading.value;
-      if (callsign && heading) {
-        this.simulation.processCommand(`${callsign} C ${heading.padStart(3, '0')}`);
+      if (callsign && heading.trim() !== '') {
+        this.simulation.processCommand(`${callsign} H ${heading}`);
         this.guiCmdHeading.value = '';
       }
     });
@@ -379,7 +368,8 @@ export class UI {
       const callsign = this.simulation.selected?.callsign;
       const altitude = parseInt(this.guiCmdAltitude.value, 10);
       if (callsign && !isNaN(altitude)) {
-        this.simulation.processCommand(`${callsign} C ${Math.round(altitude / 1000)}`);
+        // The command parser expects a shorthand altitude (e.g., 9 for 9000ft). Convert the full value.
+        this.simulation.processCommand(`${callsign} A ${Math.round(altitude / 1000)}`);
         this.guiCmdAltitude.value = '';
       }
     });
@@ -392,7 +382,7 @@ export class UI {
     this.guiSendSpeed.addEventListener('click', () => {
       const callsign = this.simulation.selected?.callsign;
       const speed = this.guiCmdSpeed.value;
-      if (callsign && speed) {
+      if (callsign && speed.trim() !== '') {
         this.simulation.processCommand(`${callsign} S ${speed}`);
         this.guiCmdSpeed.value = '';
       }
@@ -401,11 +391,6 @@ export class UI {
       if (e.key === 'Enter') {
         this.guiSendSpeed.click();
       }
-    });
-
-    this.guiSendHold.addEventListener('click', () => {
-      const callsign = this.simulation.selected?.callsign;
-      if (callsign) this.simulation.processCommand(`${callsign} H`);
     });
 
     // Altitude Graph Listeners

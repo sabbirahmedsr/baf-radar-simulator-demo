@@ -75,3 +75,19 @@ This open-source project provides a clear, code-level implementation of flight p
 #### https://assetstore.unity.com/packages/vfx/shaders/spritelights-46409
 ###### A Unity asset for rendering thousands of lights with a twist
 SpriteLights is a shader-based system for rendering a massive number of light sources, like those on a runway or city at night. It's highly relevant to the diorama, as it shows a performant technique for creating realistic PAPI lights, strobes, and other aviation-specific lighting that would bring the physical model to life.
+
+---
+
+![Online Maps v4](https://assetstorev1-prd-cdn.unity3d.com/key-image/c2dfc1d3-d40a-4014-b852-012ffdc722ab.webp)
+### Asset: Online Maps v4
+#### https://assetstore.unity.com/packages/tools/integration/online-maps-v4-297114
+###### A powerful Unity asset for integrating various online map providers.
+This asset allows developers to display dynamic, real-world maps inside a Unity application. For this simulator, it's a great reference for how to fetch and display map tiles, which could be used to create a more realistic ground layer for the ASR display, showing geographical features, cities, and airports instead of a plain background.
+
+---
+
+![PAR Approach](https://i.ytimg.com/vi/oOnd0jhgclY/hqdefault.jpg)
+### Youtube: PAR Approach
+#### https://www.youtube.com/watch?v=oOnd0jhgclY
+###### A quick demostration of landing using PAR Approach
+This video shows the process of landing of an aircraft using PAR approach.

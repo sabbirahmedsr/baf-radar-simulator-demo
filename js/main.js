@@ -23,8 +23,6 @@ class Simulation {
     this.lastTime = null;
     this.accumulator = 0;
     this.step = SIM_CONFIG.physicsStep;
-    this.metrics = { nearMiss: 0, resolved: 0, commands: 0 };
-    this.log = [];
     this.radarConfig = { rangeKm: 100, sweepRateDps: SIM_CONFIG.radarSweepRateDps };
     this.env = { wind: { dirDeg: 0, speedKts: 0 } };
     this.selected = null;
@@ -42,7 +40,6 @@ class Simulation {
     // add a few starter aircraft
     for (let i=0;i<6;i++) this.addAircraft(i===0?true:false);
     this.start();
-    this.ui.updateMetrics(this.metrics);
   }
 
   start() {
@@ -71,13 +68,10 @@ class Simulation {
     // conflict detection
     const conflicts = Physics.detectConflicts(this.aircraft);
     for (const c of conflicts) {
-      this.metrics.nearMiss++;
-      this.logMessage(`CONFLICT between ${c.a.callsign} and ${c.b.callsign} ttc:${Math.round(c.ttc*100)/100}s`);
       // auto-resolve simple
       c.a.autoResolveConflict && c.a.autoResolveConflict(c);
       c.b.autoResolveConflict && c.b.autoResolveConflict(c);
     }
-    this.ui.updateMetrics(this.metrics);
     // radar detection update
     this.radar.updateSweep(dt);
   }
@@ -86,8 +80,6 @@ class Simulation {
     // Pass the live state of all aircraft directly to the display, bypassing radar tracking logic.
     const allAircraftStates = this.aircraft.map(ac => ac.toDisplayData());
     this.display.render(allAircraftStates, this.radar, this.selected, this.ui.getDisplayOptions());
-    this.ui.updateAircraftList(this.aircraft, this.selectByCallsign.bind(this));
-    this.ui.updateLog(this.log);
     this.ui.updateVerticalAltitudeGraph(this.aircraft, this.selected);
     this.ui.updateSelection(this.selected ? this.selected.toDisplayData() : null);
   }
@@ -107,7 +99,6 @@ class Simulation {
     };
     const ac = isHypersonic ? new HypersonicAircraft(params) : new Aircraft(params);
     this.aircraft.push(ac);
-    this.logMessage(`ADDED ${callsign}`);
   }
 
   removeSelectedOrLast() {
@@ -140,21 +131,15 @@ class Simulation {
 
   processCommand(raw) {
     const { ok, callsign, commands, error } = Command.parseRawCommand(raw);
-    if (!ok) { this.logMessage(`CMD_PARSE_ERR: ${error}`); return; }
+    if (!ok) { console.error(`CMD_PARSE_ERR: ${error}`); return; }
 
     for (const command of commands) {
       const commandWithTarget = { ...command, callsign };
       const v = Command.validateCommand(commandWithTarget, this);
-      if (!v.ok) { this.logMessage(`CMD_INVALID: ${v.reason}`); continue; } // Log and continue to next command
+      if (!v.ok) { console.warn(`CMD_INVALID: ${v.reason}`); continue; } // Log and continue to next command
       Command.dispatchCommand(commandWithTarget, this);
-      this.metrics.commands++;
     }
-
-    this.logMessage(`CMD_OK: ${raw}`);
-    this.ui.updateMetrics(this.metrics);
   }
-
-  logMessage(msg){ this.log.unshift(`${new Date().toLocaleTimeString()} ${msg}`); if (this.log.length>500) this.log.pop(); }
 }
 
 const SIM = new Simulation();

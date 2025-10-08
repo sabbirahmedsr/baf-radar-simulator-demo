@@ -24,7 +24,7 @@
     height: 800px; /* Match canvas height */
     overflow-y: auto;
     box-sizing: border-box; }
-#cmdLine { display: flex; gap: 10px; margin-top: 20px; width: 100%; }
+#cmdLine { display: flex; gap: 10px; margin-bottom: 20px; width: 100%; }
 #cmdInput { flex: 1; }
 .dataBlock { background: var(--bg-dark); color: var(--text-light); padding: 15px; margin: 10px 0; font-family: 'Fira Code', 'Consolas', monospace; font-size: 14px; border-radius: 6px; border: 1px solid var(--border-color); }
 #logPanel { height: 200px; overflow: auto; background: var(--bg-dark); color: var(--text-medium); padding: 10px; border-radius: 6px; font-size: 12px; border: 1px solid var(--border-color); }
@@ -38,9 +38,22 @@ h3 { color: var(--accent-blue); border-bottom: 1px solid var(--border-color); pa
 button, input, select, label { font-size: 14px; color: var(--text-light); }
 button { background: #3d3d45; border: 1px solid var(--border-color); padding: 8px 15px; border-radius: 5px; cursor: pointer; transition: background-color 0.2s, border-color 0.2s; }
 button:hover { background-color: #4a4a52; border-color: #666; }
-#cmdSend { background-color: var(--accent-blue); border-color: var(--accent-blue); }
+#cmdSend { background-color: var(--accent-blue); border-color: var(--accent-blue); color: #fff; }
 #cmdSend:hover { background-color: #5a9ee2; }
-input[type="number"], input[type="text"] { background: var(--bg-dark); border: 1px solid var(--border-color); padding: 8px; border-radius: 5px; color: var(--text-light); }
+input[type="number"], input[type="text"] { background: var(--bg-dark); border: 1px solid var(--border-color); padding: 8px; border-radius: 5px; }
+#cmdInput {
+    background-color: #111; /* Darker, distinct background */
+    color: #e0e0e0; /* Bright text color */
+    border: 1px solid #444;
+    font-family: 'Fira Code', 'Consolas', monospace;
+    padding-left: 12px; /* Add space before text */
+}
+/* Ensure the input field retains its dark background and light text when focused */
+#cmdInput:focus {
+    background-color: #181818;
+    border: 1px solid var(--accent-blue);
+    outline: none; /* Remove default browser outline */
+}
 label { display: block; margin-bottom: 10px; }
 input[type="checkbox"] { accent-color: var(--accent-blue); }
 
@@ -80,4 +93,10 @@ input[type="checkbox"] { accent-color: var(--accent-blue); }
     border: none;
     border-top: 1px solid var(--border-color);
     margin: 15px 0;
+}
+
+/* Hide the Controls section temporarily as requested */
+#controls-section-header,
+#controls-section-content {
+    display: none;
 }

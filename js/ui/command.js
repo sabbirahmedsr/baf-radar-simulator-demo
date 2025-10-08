@@ -22,25 +22,26 @@ export function parseRawCommand(raw){
     i++;
 
     switch (verb) {
-      case 'c': // Generic Clearance
-        if (i >= commandParts.length) return { ok: false, error: "Expected parameter for 'C'" };
-        const paramC = commandParts[i];
-        if (/^\d{3}$/.test(paramC)) { // Heading: 3 digits
-          commands.push({ type: 'set_heading', params: { heading: parseFloat(paramC) } });
-        } else if (/^\d{1,2}$/.test(paramC)) { // Altitude: 1-2 digits (x1000 ft)
-          commands.push({ type: 'climb_to', params: { altitude: parseFloat(paramC) * 1000 } });
-        } else {
-          return { ok: false, error: `Invalid parameter for 'C': ${paramC}` };
-        }
+      case 'h': // Heading
+        if (i >= commandParts.length) return { ok: false, error: "Expected parameter for 'H'" };
+        const headingParam = commandParts[i];
+        if (!/^\d{1,3}$/.test(headingParam)) return { ok: false, error: `Invalid heading: ${headingParam}` };
+        commands.push({ type: 'set_heading', params: { heading: parseFloat(headingParam) } });
+        i++;
+        break;
+      case 'a': // Altitude
+        if (i >= commandParts.length) return { ok: false, error: "Expected parameter for 'A'" };
+        const altParam = commandParts[i];
+        if (!/^\d{1,3}$/.test(altParam)) return { ok: false, error: `Invalid altitude: ${altParam}` };
+        // Altitude is given in hundreds of feet (e.g., 90 for 9000ft) or thousands (e.g. 9 for 9000ft)
+        const altValue = parseFloat(altParam) * (altParam.length > 2 ? 100 : 1000);
+        commands.push({ type: 'set_altitude', params: { altitude: altValue } });
         i++;
         break;
       case 's': // Speed
         if (i >= commandParts.length) return { ok: false, error: "Expected parameter for 'S'" };
         commands.push({ type: 'set_speed', params: { speed: parseFloat(commandParts[i]) } });
         i++;
-        break;
-      case 'h': // Hold
-        commands.push({ type: 'hold', params: {} });
         break;
       default:
         return { ok: false, error: `Unknown command verb: ${verb.toUpperCase()}` };
@@ -77,6 +78,5 @@ export function dispatchCommand(command, sim){
     command.params.heading = (ac.heading + delta + 360) % 360;
   }
   const res = ac.applyCommand(command);
-  sim.logMessage(`CMD_DISPATCH ${command.type} -> ${ac.callsign}`);
   return res;
 }
