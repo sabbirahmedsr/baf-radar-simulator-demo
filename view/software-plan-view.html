@@ -1,0 +1,226 @@
+<div class="software-plan-container">
+    <div class="main-content-container">
+
+        <!-- Card 1: About the Simulator -->
+        <div class="plan-card" id="plan-vision">
+            <div class="plan-card-header">
+                <i class="fa-solid fa-bullseye plan-card-icon"></i>
+                <h3 class="plan-card-title">Radar Simulator</h3>
+            </div>
+            <div class="plan-card-body">
+                <p>A real-world, practical simulator designed to train student controllers in a highly realistic environment. The system uses a central server to run the simulation, featuring an accurate map of the Bangladesh skies and professional-grade radar displays (ASR & PAR). Aircraft behave according to real-world physics, and an integrated voice system allows trainees to communicate directly with pseudo-pilots for a fully immersive training experience.</p>
+            </div>
+        </div>
+
+        <!-- Card 2: Key Features -->
+        <div class="plan-card" id="plan-features">
+            <div class="plan-card-header">
+                <i class="fa-solid fa-star plan-card-icon"></i>
+                <h3 class="plan-card-title">Key Features at a Glance</h3>
+            </div>
+            <div class="plan-card-body">
+                <p>The simulator is built around a set of core features designed to provide a comprehensive training experience.</p>
+                <div class="mermaid">
+    graph LR
+        G["<b>Central Simulation Server</b><br/><span class='node-subtitle'>The 'brain' that runs the simulation</span>"]:::leafNode --> A(((Radar Simulator))):::rootNode
+        B["<b>Geo-Accurate Bangladesh Map</b><br/><span class='node-subtitle'>Real-world lat/lon coordinates</span>"]:::leafNode --> A
+        C["<b>PTT Voice Communication</b><br/><span class='node-subtitle'>Simulates PTT radio channels</span>"]:::leafNode --> A
+        A --> D["<b>ASR - Airport Surveillance Radar</b><br/><span class='node-subtitle'>TMA overview up to 50 NM</span>"]:::leafNode
+        A --> E["<b>PAR - Precision Approach Radar</b><br/><span class='node-subtitle'>Guides aircraft for final approach</span>"]:::leafNode
+        A --> F["<b>Command & Control Interface</b><br/><span class='node-subtitle'>Instruction panel & Instructor oversight</span>"]:::leafNode
+        H["<b>Exercise & Scenario System</b><br/><span class='node-subtitle'>Pre-scripted training scenarios</span>"]:::leafNode --> A
+
+        classDef rootNode fill:#004D40,stroke:#4DB6AC,stroke-width:2px,color:#fff
+        classDef leafNode fill:#2c2c2c,stroke:#4DB6AC,stroke-width:1px,color:#eee
+                </div>
+            </div>
+        </div>
+
+        <!-- Card 3: Software Roles -->
+        <div class="plan-card" id="plan-roles">
+            <div class="plan-card-header">
+                <i class="fa-solid fa-users plan-card-icon"></i>
+                <h3 class="plan-card-title">1.0 The Three Applications: Features & Functionality</h3>
+            </div>
+            <div class="plan-card-body">
+                <p>The simulation environment is powered by three distinct software packages, each providing a specific set of features for the training exercise.</p>
+                <div class="software-architecture-grid">
+                    <div class="software-card server-software">
+                        <div class="card-header">
+                            <i class="fa-solid fa-database"></i>
+                            <h4>Instructor Application (Server)</h4>
+                        </div>
+                        <div class="card-body">
+                            <div class="feature-group">
+                                <strong>Core Purpose:</strong>
+                                <p>This application is the central brain and core engine of the simulator. It runs the entire simulation, calculates all physics, and acts as the central server to synchronize every client.</p>
+                            </div>
+                            <div class="feature-group">
+                                <strong>Key Interfaces:</strong>
+                                <ul>
+                                    <li>Airport Surveillance Radar (ASR) View</li>
+                                    <li>Precision Approach Radar (PAR) View</li>
+                                    <li>Geo-Accurate Bangladesh Map</li>
+                                    <li>Push-to-Talk (PTT) Master Voice Interface</li>
+                                    <li>Master Command & Control Panel</li>
+                                    <li>Session Lifecycle Control Panel</li>
+                                    <li>Exercise & Scenario Management System</li>
+                                    <li>Live Aircraft Creation & Control System</li>
+                                    <li>Network & Session Status Monitor</li>
+                                    <li>Advanced Environmental Control Panel</li>
+                                    <li>System & Aircraft Malfunction Injector</li>
+                                    <li>Simulation Time & Speed Control Panel</li>
+                                    <li>Map Measurement & Analysis Tools</li>
+                                </ul>
+                            </div>
+                            <div class="feature-group">
+                                <strong>Detailed Features:</strong>
+                                <ul>
+                                    <li>Load and run exercises from a predefined list.</li>
+                                    <li>Manage the simulation session (start, pause, restart, end).</li>
+                                    <li>Inject real-time events like emergencies or weather shifts.</li>
+                                    <li>Take direct "pilot" control of any aircraft for hands-on intervention.</li>
+                                    <li>Override any voice channel to communicate directly with clients.</li>
+                                    <li>Control simulation speed with pause and fast-forward options.</li>
+                                    <li>Create new aircraft dynamically during a running session.</li>
+                                    <li>Modify any aircraft's flight plan or parameters in real-time.</li>
+                                    <li>Trigger specific malfunctions (e.g., engine failure).</li>
+                                    <li>Set precise environmental conditions like wind layers and visibility.</li>
+                                    <li>Use on-map tools for range and bearing measurements.</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="software-card officer-software">
+                        <div class="card-header"><i class="fa-solid fa-user-tie"></i><h4>Officer Application (Client as Pilot)</h4></div>
+                        <div class="card-body">
+                            <div class="feature-group">
+                                <strong>Core Purpose:</strong>
+                                <p>This application puts the user in the role of a pseudo-pilot. They listen to verbal commands from the student controller, then manually input those instructions—like heading, altitude, and speed—into the aircraft's command panel. The user also provides manual voice responses back to the student using the PTT system, completing the communication loop.</p>
+                            </div>
+                            <div class="feature-group">
+                                <strong>Key Interfaces:</strong>
+                                <ul>
+                                    <li>Airport Surveillance Radar (ASR) View</li>
+                                    <li>Precision Approach Radar (PAR) View</li>
+                                    <li>Geo-Accurate Bangladesh Map</li>
+                                    <li>Command & Control Panel</li>
+                                    <li>System & Aircraft Malfunction Injector</li>
+                                    <li>Map Measurement & Analysis Tools</li>
+                                    <li>PTT Voice & Channel Monitor</li>
+                                </ul>
+                            </div>
+                            <div class="feature-group">
+                                <strong>Detailed Features:</strong>
+                                <ul>
+                                    <li>Listen for verbal commands from student controllers.</li>
+                                    <li>Provide voice readbacks to controllers via PTT.</li>
+                                    <li>Manually execute ATC commands (heading, altitude, speed).</li>
+                                    <li>Display live aircraft data received from the server.</li>
+                                    <li>Switch between assigned PTT voice channels.</li>
+                                    <li>Activate aircraft malfunctions on instructor command.</li>
+                                    <li>View the flight plan for the assigned aircraft.</li>
+                                </ul>
+                                <div class="mermaid">
+    graph TD
+        subgraph Officer Core Loop
+            C(Manually Execute Command) --> A(Listen for Verbal Command);
+            A --> B(Provide Voice Readback via PTT);
+            B --> C;
+        end
+        classDef default fill:#222,stroke:#4DB6AC,stroke-width:1px,color:#eee
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="software-card student-software">
+                        <div class="card-header"><i class="fa-solid fa-user-graduate"></i><h4>Student Application (Client as Controller)</h4></div>
+                        <div class="card-body">
+                            <div class="feature-group">
+                                <strong>Core Purpose:</strong>
+                                <p>This application places the student in the role of an Air Traffic Controller. They observe aircraft on high-fidelity ASR and PAR radar displays, analyze traffic situations, and issue verbal commands to pilots via the PTT voice system to manage the airspace.</p>
+                            </div>
+                            <div class="feature-group">
+                                <strong>Key Interfaces:</strong>
+                                <ul>
+                                    <li>Airport Surveillance Radar (ASR) Scope</li>
+                                    <li>Precision Approach Radar (PAR) Scope</li>
+                                    <li>Geo-Accurate Bangladesh Map</li>
+                                    <li>Push-to-Talk (PTT) Voice Interface</li>
+                                    <li>On-Screen Radar Measurement Tools</li>
+                                </ul>
+                            </div>
+                            <div class="feature-group">
+                                <strong>Detailed Features:</strong>
+                                <ul>
+                                    <li>Ensure airspace safety and guide aircraft for safe landings.</li>
+                                    <li>Issue verbal commands to pilots via the PTT system.</li>
+                                    <li>Monitor aircraft on ASR, PAR, and map displays.</li>
+                                    <li>Maintain vertical and horizontal separation between aircraft.</li>
+                                    <li>Analyze aircraft trajectories using history trails and vector lines.</li>
+                                    <li>Use on-screen tools for range, bearing, and separation checks.</li>
+                                    <li>Identify and manage potential conflicts between aircraft.</li>
+                                    <li>Switch between ASR for terminal area and PAR for final approach.</li>
+                                </ul>
+                                <div class="mermaid">
+    graph TD
+        subgraph Student Core Loop
+            A(Analyze Traffic & Ensure Safety) --> B(Issue Verbal Command via PTT);
+            B --> C(Listen for Pilot Readback);
+            C --> A;
+        end
+        classDef default fill:#222,stroke:#4DB6AC,stroke-width:1px,color:#eee
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Card 4: Core Modules -->
+        <div class="plan-card" id="plan-modules">
+            <div class="plan-card-header">
+                <i class="fa-solid fa-cubes plan-card-icon"></i>
+                <h3 class="plan-card-title">2.0 Core System Modules</h3>
+            </div>
+            <div class="plan-card-body">
+                <div class="module-grid">
+                    <div class="module-item"><h5>Simulation Engine</h5><p>The server-side "heart" of the simulator. Updates aircraft state based on physics and commands. <em>(e.g., <code>physics.js</code>)</em></p></div>
+                    <div class="module-item"><h5>Networking Module</h5><p>Handles all data synchronization between server and clients using WebSockets. <em>(e.g., <code>network.js</code>)</em></p></div>
+                    <div class="module-item"><h5>Voice Module</h5><p>Manages the internal PTT voice chat using WebRTC, simulating radio channels with instructor override. <em>(e.g., <code>voice.js</code>)</em></p></div>
+                    <div class="module-item"><h5>Radar Display Module</h5><p>Renders the ASR/PAR scopes, including aircraft blips, data blocks, and history trails on HTML5 Canvas. <em>(e.g., <code>display.js</code>)</em></p></div>
+                    <div class="module-item"><h5>Command & Control Module</h5><p>The UI for Instructors and Officers to control the simulation and their assigned aircraft. <em>(e.g., <code>controls.js</code>)</em></p></div>
+                    <div class="module-item"><h5>Exercise & Scenario Module</h5><p>Manages loading, running, and saving training exercises from JSON/JS files. <em>(e.g., <code>scenario.js</code>)</em></p></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Card 5: Detailed Features -->
+        <div class="plan-card" id="plan-feature-details">
+            <div class="plan-card-header">
+                <i class="fa-solid fa-list-check plan-card-icon"></i>
+                <h3 class="plan-card-title">3.0 Detailed Feature Breakdown</h3>
+            </div>
+            <div class="plan-card-body">
+                <div class="feature-detail-group">
+                    <h4><i class="fa-solid fa-satellite-dish"></i> Radar Display & Aircraft Features</h4>
+                    <div class="feature-grid">
+                        <div class="feature-card"><strong>Interactive Map Node Label</strong><p>Draggable UI nodes for each aircraft showing callsign, altitude, speed, and squawk code. Can be toggled on/off.</p></div>
+                        <div class="feature-card"><strong>History & Velocity Vectors</strong><p>Displays aircraft history trails and projected velocity vectors to help controllers predict future positions. Can be toggled on/off.</p></div>
+                        <div class="feature-card"><strong>On-Screen Measurement Tools</strong><p>Provides digital tools for measuring range and bearing between any two points or aircraft directly on the radar scope.</p></div>
+                    </div>
+                </div>
+                <div class="feature-detail-group">
+                    <h4><i class="fa-solid fa-map-location-dot"></i> Map & Navigation Features</h4>
+                    <div class="feature-grid">
+                        <div class="feature-card"><strong>Real-World Coordinate System</strong><p>The map is built on a real-world projection, converting actual latitude and longitude into a geo-accurate grid for precise positioning.</p></div>
+                        <div class="feature-card"><strong>Dynamic Map Layers</strong><p>Toggle visibility for different map types, including domestic/international routes, restricted areas, and major reporting points.</p></div>
+                        <div class="feature-card"><strong>Arrival & Approach Visualization</strong><p>Select and display standard instrument arrival (STAR) and approach procedures directly on the map for detailed analysis.</p></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</div>

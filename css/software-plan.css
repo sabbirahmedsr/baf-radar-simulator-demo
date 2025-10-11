@@ -1,0 +1,161 @@
+/* --- Software Plan View Specifics --- */
+.software-plan-container {
+    max-width: 1600px;
+    margin: 0 auto;
+}
+
+/* --- Main Content Area --- */
+.main-content-container {
+    width: 100%;
+}
+
+.plan-card {
+    background-color: var(--bg-dark);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    margin-bottom: 25px;
+    overflow: hidden;
+}
+
+.plan-card-header {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 15px 20px;
+    background-color: var(--panel-dark);
+    border-bottom: 1px solid var(--border-color);
+}
+
+.plan-card-icon {
+    font-size: 1.2em;
+    color: var(--accent-blue);
+}
+
+.plan-card-title {
+    margin: 0;
+    color: var(--text-light);
+    font-size: 1.2em;
+}
+
+.plan-card-body {
+    padding: 20px;
+    color: var(--text-medium);
+    line-height: 1.7;
+}
+
+.plan-card-body p {
+    margin-top: 0;
+}
+
+/* Justify alignment for longer descriptive paragraphs */
+.plan-card-body > p,
+.feature-group > p {
+    text-align: justify;
+}
+
+.plan-card-body ul {
+    list-style-position: inside;
+    padding-left: 5px;
+}
+
+.plan-card-body li {
+    margin-bottom: 8px;
+}
+
+.plan-card-body code {
+    background-color: var(--panel-dark);
+    padding: 2px 5px;
+    border-radius: 4px;
+    font-family: 'Courier New', Courier, monospace;
+    color: var(--accent-orange);
+}
+
+/* --- Mermaid Diagram Styling --- */
+.mermaid {
+    background-color: var(--panel-dark);
+    padding: 15px;
+    border-radius: 6px;
+    margin-top: 15px;
+}
+
+/* Specific override for the "Key Features" flowchart */
+#plan-features .mermaid {
+    background-color: transparent;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+}
+
+/* Specific override for the Officer/Student loop flowcharts */
+.software-card .mermaid {
+    background-color: transparent;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+}
+
+/* Add padding to the body of the three main application cards */
+.software-card .card-body {
+    padding: 20px;
+    padding-top: 15px;
+}
+
+/* --- Feature Groups & Grids --- */
+.feature-group {
+    margin-bottom: 20px;
+    padding-bottom: 15px;
+    border-bottom: 1px dashed var(--border-color);
+}
+.feature-group:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+}
+.feature-group strong {
+    color: var(--accent-blue);
+}
+
+.module-grid, .feature-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 15px;
+    margin-top: 15px;
+}
+
+.module-item, .feature-card {
+    background-color: var(--panel-dark);
+    padding: 15px;
+    border-radius: 6px;
+    border-left: 3px solid var(--accent-blue);
+}
+
+.feature-card p {
+    line-height: 1.5;
+    margin-top: 5px;
+    margin-bottom: 0;
+}
+
+.feature-card strong {
+    color: var(--accent-blue);
+    display: block;
+    margin-bottom: 5px;
+    font-weight: 600;
+}
+
+.module-item h5 {
+    color: var(--accent-blue);
+    font-size: 1em; /* Ensure it's not smaller than the paragraph */
+    font-weight: 600;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+    margin-top: 0;
+}
+
+.feature-detail-group {
+    margin-top: 25px;
+}
+
+.feature-detail-group h4 {
+    color: var(--accent-green);
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 8px;
+}

@@ -145,3 +145,9 @@
 
 .software-card .card-body ul { margin-top: 15px; }
 .software-card .card-body li { border-left: none; background: none; }
+
+.software-card .card-body .role-item {
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px dashed var(--border-color);
+}

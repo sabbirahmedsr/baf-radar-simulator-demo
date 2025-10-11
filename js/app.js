@@ -7,6 +7,7 @@
  */
 import { Diorama } from './ui/diorama.js';
 import { init3DScenes } from './ui/diorama-3d.js';
+import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
 import { ThreeDViewer } from './ui/three-viewer.js';
 
 // Simple SPA router
@@ -31,9 +32,11 @@ document.addEventListener('DOMContentLoaded', () => {
           } else if (viewId === 'resource-view') {
             await populateResourceGrid();
             setupModalListeners(); // Set up listeners for the newly created resource cards
-          } else if (viewId === 'room-design-view') {
+          } else if (viewId === 'hardware-plan-view') {
             setupRoomDesign3DView();
             setupRoomDesignDiagram();
+          } else if (viewId === 'software-plan-view') {
+            mermaid.run({ nodes: document.querySelectorAll('#software-plan-view .mermaid') });
           } else if (viewId === 'asr-view') { // This was 'simulator-view'
             // Dynamically import the main simulator script.
             // This ensures the radarCanvas and other elements are in the DOM
