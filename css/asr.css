@@ -5,8 +5,22 @@
 }
 
 #top { display: flex; gap: 20px; width: 100%; max-width: 1300px; }
-#radarContainer { display: flex; flex-direction: column; align-items: center; }
-#radarCanvas { border: 1px solid var(--border-color); background: #000; width: 800px; height: 800px; border-radius: 8px; }
+#radarContainer { 
+    position: relative; /* Establish a stacking context */
+    display: flex; 
+    flex-direction: column; 
+    align-items: center; 
+}
+#radarBgImage {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 800px;
+    height: 800px;
+    border-radius: 8px;
+    z-index: 0; /* Place it in the background */
+}
+#radarCanvas { position: relative; z-index: 1; border: 1px solid var(--border-color); background: transparent; width: 800px; height: 800px; border-radius: 8px; }
 #altitudeGraphVerticalCanvas {
     border: 1px solid var(--border-color);
     background: var(--bg-dark);

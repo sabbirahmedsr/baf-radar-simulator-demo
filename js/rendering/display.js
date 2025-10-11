@@ -32,15 +32,14 @@ export class Display {
   /** Reads theme colors from CSS variables to use in canvas drawing. */
   _loadThemeColors() {
     const style = getComputedStyle(document.body);
-    this.theme.sweep = style.getPropertyValue('--accent-green-rgba-15');
-    this.theme.grid = style.getPropertyValue('--accent-green');
+    this.theme.sweep = THEME_COLORS.sweep;
+    this.theme.grid = THEME_COLORS.grid;
     this.theme.runway = THEME_COLORS.runway; // Not in CSS, keep in config
     this.theme.trail = THEME_COLORS.trail;
   }
 
   clear(){
-    this.ctx.fillStyle = '#000';
-    this.ctx.fillRect(0,0,this.canvas.width,this.canvas.height);
+    this.ctx.clearRect(0,0,this.canvas.width,this.canvas.height);
   }
 
   kmToPx(km){ return km * this.scale; }
@@ -50,12 +49,12 @@ export class Display {
 
   render(aircraftList, radar, selected, displayOptions){
     // This function now receives the LIVE aircraft list but will render from its own displayTargets map.
+    this.ctx.globalAlpha = 1.0; // Reset global alpha
     this.clear();
     this.ctx.save();
     this.ctx.translate(this.cx, this.cy);
 
     // --- Update display targets based on sweep position ---
-    const sweepCycled = radar.sweepAngle < this.lastSweepAngle;
     // A sweep cycle completes when it goes from a high value (e.g., 359) to a low one (e.g., 0).
     // The original check was just `radar.sweepAngle < this.lastSweepAngle`.
     // This more robust check prevents false triggers if the angle jitters slightly.
@@ -115,7 +114,7 @@ export class Display {
     const lengthPx = this.kmToPx(runway.lengthKm);
 
     // Draw runway as a single, solid line
-    this.ctx.strokeStyle = '#fff'; // White centerline
+    this.ctx.strokeStyle = this.theme.runway;
     this.ctx.lineWidth = 2; // Make it slightly thicker to be visible
     this.ctx.setLineDash([]); // Ensure the line is solid
     this.ctx.beginPath();
@@ -124,7 +123,7 @@ export class Display {
     this.ctx.stroke();
 
     // Draw runway numbers
-    this.ctx.fillStyle = '#484848'; // Use the same subtle color as the compass rose
+    this.ctx.fillStyle = this.theme.grid;
     this.ctx.font = '12px Segoe UI'; // Make the font smaller and not bold
     this.ctx.textAlign = 'center';
     this.ctx.textBaseline = 'middle';
@@ -160,8 +159,8 @@ export class Display {
     this.ctx.rotate(angRad);
     const rangePx = this.kmToPx(rangeKm);
     const grad = this.ctx.createLinearGradient(0,0,rangePx,0);
-    grad.addColorStop(0, 'rgba(80, 227, 194, 0.25)'); // Use theme color
-    grad.addColorStop(1, 'rgba(0,255,0,0)');
+    grad.addColorStop(0, this.theme.sweep);
+    grad.addColorStop(1, 'rgba(0,0,0,0)');
     this.ctx.fillStyle = grad;
     this.ctx.beginPath();
     this.ctx.moveTo(0,0);
@@ -182,8 +181,8 @@ export class Display {
     const tickRadiusPx = this.kmToPx(rangeKm);
     this.ctx.save();
     // Use a very subtle color that almost blends with the background
-    this.ctx.fillStyle = '#484848'; // Increased contrast slightly for better visibility
-    this.ctx.strokeStyle = '#484848';
+    this.ctx.fillStyle = this.theme.grid;
+    this.ctx.strokeStyle = this.theme.grid;
     this.ctx.font = "10px 'Segoe UI'"; // Revert to a slightly larger font
     this.ctx.textAlign = 'center';
     this.ctx.textBaseline = 'middle';
